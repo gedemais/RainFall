@@ -1,0 +1,8 @@
+bytes = "55 89 e5 83 e4 f0 83 ec 20 c7 44 24 18 30 85 04 08 c7 44 24 1c 00 00 00 00 8b 44 24 18 c7 44 24 08 00 00 00 00 8d 54 24 18 89 54 24 04 89 04 24 e8 07 ff ff ff c7 04 24 00 00 00 00 e8 db fe ff ff"
+
+data = ""
+
+for b in bytes.split(' '):
+	data += chr(map(ord, b.decode('hex')))
+
+print(data)
