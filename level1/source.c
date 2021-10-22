@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int     run()
+void    run()
 {
     fwrite("Good... Wait what?\n", 19, 1, stdout);
     system("/bin/sh");
-    return (0);
 }
 
 int     main(int argc, char **argv)
