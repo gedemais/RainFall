@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdlib.h>
 
 void	p(char *buffer)
 {
@@ -9,7 +11,7 @@ void	n(void)
 	char	buffer[512];
 	int		m = 0;
 
-	fgets(buffer);
+	fgets(buffer, 512, stdin);
 	p(buffer);
 
 	if (m != 0x01025544)

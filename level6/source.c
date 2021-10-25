@@ -1,27 +1,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void	n(void)
+int		n(void)
 {
-	system("/bin/cat /home/user/level7/.pass");
+	return (system("/bin/cat /home/user/level7/.pass"));
 }
 
-void	m(void)
+int		m(void)
 {
-	puts("Nope");
+	return (puts("Nope"));
 }
 
 int     main(int argc, char**argv)
 {
 	char	*a;
 	char	*b;
-	void	(*func)(void) = NULL;
+	int		(*func)(void) = NULL;
 
 	a = malloc(64);
 	b = malloc(4);
-	argv[1] += (void*)4;
 	strcpy(a, argv[1]);
-	(*func) = b;
+	func = b;
 	(*func)();
     return (0);
 }
