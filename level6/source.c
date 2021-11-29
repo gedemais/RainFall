@@ -21,6 +21,6 @@ int     main(int argc, char**argv)
 	b = malloc(4);
 	strcpy(a, argv[1]);
 	func = b;
-	(*func)();
+	func();
     return (0);
 }
