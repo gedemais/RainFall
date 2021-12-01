@@ -198,7 +198,7 @@ End of assembler dump.
 This one seems to be a method of the class who get the length of the second arg 
 (argv1 here) and memcpy it in the first arg (our first instance of our class N).
 Here we see an oportunity to overflow in our second instance of class N, who is 
-called before the ned of the function.
+called before the end of the function.
 So we will search the size of the buffer.
 ********************************************************************************
 
@@ -424,8 +424,8 @@ And our second at 0x804a078.
 We can see that there is 7*16=112 bytes between the two with the four last bytes
 containing an address to 0x08048848 who when dereferenced point to a method of the class N.
 0x0804873a in N::operator+(N&) ().
-We will overwrite this address to point to an address who point to an address who points 
-to the nopsled region of our payload. Because there is two dereferencing.
+We will overwrite this address to point to an address who point to an address who
+will points to the nopsled region of our payload. Because there is two dereferencing.
    0x08048680 <+140>:	mov    (%eax),%eax
    0x08048682 <+142>:	mov    (%eax),%edx
 So our payload will look like this:

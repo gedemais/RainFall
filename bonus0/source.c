@@ -13,12 +13,20 @@ char    *p(char *ptr, const char *ptr2)
 
 char    *pp(char *buf)
 {
-    
+    char    str[20];
+    char    str2[20];
+
+    p(str, '-');
+    p(str2, '-');
+    strcpy(buf, str);
+    buf[strlen(buf)] = ' ';
+
+    return (strcat(buf, str2));
 }
 
 int     main(int argc, char**argv)
 {
-    char    buf[64];
+    char    buf[54];
 
     pp(buf);
     puts(buf);
