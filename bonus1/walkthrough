@@ -25,7 +25,7 @@ bonus1@RainFall:~$ ./bonus1 a a
 bonus1@RainFall:~$ ./bonus1 aaaabbbbccccddddeeeeffffgggghhhhiiiijjjjkkkkllllmmmmnnnnooooppppqqqqrrrrssssttttuuuuvvvvwwwwxxxxyyyyzzzzAAAABBBBCCCCDDDDEEEEFFFFGGGGHHHHIIIIJJJJKKKKLLLLMMMMNNNNOOOOPPPPQQQQRRRRSSSSTTTTUUUUVVVVWWWWXXXXYYYYZZZZ
 
 *********************************************************************************
-Segfault with number, weird.
+Segfault with number, interesting.
 *********************************************************************************
 
 (gdb) info function
@@ -54,8 +54,8 @@ Non-debugging symbols:
 0x0804855c  _fini
 
 *********************************************************************************
-Just a main. The call to execl and to memcpy are interesting. And the call to atoi
-explain the segfault.
+Just a main. The call to execl is what we want to attain. The call to memcpy is
+a mean to bufferoverflow somewhere.
 *********************************************************************************
 
 (gdb) disas main
@@ -155,10 +155,10 @@ End of assembler dump.
     To pass it we need a number inferior to 10 so we will use the fact that
     it is stocked in an integer and use this instruction :
         0x08048453 <+47>:	lea    0x0(,%eax,4),%ecx
-    It will multiplied our argv[1] value converted in integer and multiplied
-    it by 4, so we can overflow INT_MIN to get to the size we need 44.
+    It will multiply our argv[1] value converted in integer and multiplied
+    it by 4, so we can overflow INTMIN INTMAX loop to get to the size we need : 44.
     We need to calcul INT_MIN/2 + 11 to find -1073741813 for our first argument.
-    We will write 40 'a' followed by /x46/x4c/x4f/x57 for opur second argument.
+    We will write 40 'a' followed by /x46/x4c/x4f/x57 for our second argument.
 
 
 *********************************************************************************

@@ -27,17 +27,17 @@ int     main(int argc, char**argv)
 	if (argc != 3)
 		return (1);
 
-	memset(buff1, 0, 19);
-	strncpy(buff1, argv[1], 40);
-	strncpy(buff1 + 40, argv[2], 32);
+	memset(buff, 0, 19);
+	strncpy(buff, argv[1], 40);
+	strncpy(buff + 40, argv[2], 32);
 
 	if (!(lang = getenv("LANG")))
-		return (1);
+		return (0);
 
 	langage = 0;
 	if (memcmp(lang, "fi", 2) == 0)
 		langage = 1;
-	if (memcmp(lang, "nl", 2) == 0)
+	else if (memcmp(lang, "nl", 2) == 0)
 		langage = 2;
 
 	memcpy(buff2, buff, 19);

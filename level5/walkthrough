@@ -1,8 +1,10 @@
 RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH      FILE
 No RELRO        No canary found   NX disabled   No PIE          No RPATH   No RUNPATH   /home/user/level5/level5
+
 level5@RainFall:~$ ls -l
 total 8
 -rwsr-s---+ 1 level6 users 5385 Mar  6  2016 level5
+
 level5@RainFall:~$ cat level5
 [H�F4p	$(,048<S��[�����������t�m�(�C�[��5�% �%$h������%(������%,h������%0h�����%4h �����%8h(�����%<h0����1�^����PTRh�h
  QVh��������������������U��S���=Lu?�P�D��@����9�s�����P��@�P9�r��L��[]Ít&��'U����H��t���t	�$H���ÐU����$������$�������
@@ -114,7 +116,7 @@ Dump of assembler code for function n:
 End of assembler dump.
 
 ********************************************************************************
-Fgets is called with a lenght limit of 512 characters, print it and exit.
+In n, fgets is called with a lenght limit of 512 characters, print it and exit.
 ********************************************************************************
 
 (gdb) disas o

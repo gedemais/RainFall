@@ -8,6 +8,7 @@ char    *p(char *ptr, const char *ptr2)
     puts(ptr2);
     read(0, buffer, 4096);
     buffer[strchr(buffer, '\n')] = '\0';
+    
     return (strncpy(ptr, buffer, 20));
 }
 
@@ -30,5 +31,6 @@ int     main(int argc, char**argv)
 
     pp(buf);
     puts(buf);
+
     return (0);
 }

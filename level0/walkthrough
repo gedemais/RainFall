@@ -8,6 +8,7 @@ level0@RainFall:~$ ./level0 .profile
 No !
 level0@RainFall:~$ ./level0
 Segmentation fault (core dumped)
+
 level0@RainFall:~$ gdb ./level0
 GNU gdb (Ubuntu/Linaro 7.4-2012.04-0ubuntu2.1) 7.4-2012.04
 Copyright (C) 2012 Free Software Foundation, Inc.
@@ -47,16 +48,21 @@ premier element de argv. Cette comparaison mene a un jump dans le code de main.
 level0@RainFall:~$ ./level0 423
 $ ls
 ls: cannot open directory .: Permission denied
+
 $ whoami
 level1
+
 $ id
 uid=2030(level1) gid=2020(level0) groups=2030(level1),100(users),2020(level0)
+
 $ cd ../
 $ cd level1
 $ ls
 level1
+
 $ ls -a
 .  ..  .bash_logout  .bashrc  level1  .pass  .profile
+
 $ cat .pass
 1fe8a524fa4bec01ca4ea2a869af2a02260d4a7d5fe7e7c24d8617e6dca12d3a
 

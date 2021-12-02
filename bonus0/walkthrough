@@ -53,7 +53,7 @@ Non-debugging symbols:
 0x0804867c  _fini
 
 ********************************************************************************
-A call to strcpy might permit us to overwrite somewhere.
+The call to strcpy might permit us to overwrite somewhere.
 ********************************************************************************
 
 (gdb) disas main
@@ -74,7 +74,7 @@ Dump of assembler code for function main:
 End of assembler dump.
 
 ********************************************************************************
-The main call pp and puts the buffer we fill with pp.
+The main call pp and puts the buffer sent to pp.
 ********************************************************************************
 
 (gdb) disas pp
@@ -124,8 +124,8 @@ Dump of assembler code for function pp:
 End of assembler dump.
 
 ********************************************************************************
-the function pp calls p two times, strcpy and strcat and seems to do a strlen too.
-we will use the strcpy or tyhe strcat to use a buffer overflow attack.
+The function pp calls p two times, and also strcpy and strcat and seems to do a
+strlen too. We will use the strcpy and the strcat to use a buffer overflow attack.
 ********************************************************************************
 
 (gdb) disas p

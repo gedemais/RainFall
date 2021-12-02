@@ -7,12 +7,14 @@ bonus2@RainFall:~$ cat bonus2
 ää Goedemiddag! LANGfinl8
                          ����T@���x��������l���n���zR|
 ...
+
 ********************************************************************************
 We can see two strings :
 The "Hello" world in Finnish, German and English.
 A string that looks like an environment variable,
 apparently containing a language setting.
 ********************************************************************************
+
 bonus2@RainFall:~$ gdb bonus2
 ...
 (gdb) disas main
