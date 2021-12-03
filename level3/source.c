@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int     v()
+void    v(void)
 {
-    char    str[512];
+    char    str[520];
     int     m;
 
     fgets(str, 512, stdin);
@@ -13,7 +13,7 @@ int     v()
         fwrite("Wait what?!\n", 1, 12, stdout);
         system("/bin/sh");   
     }
-    return (0);
+    return ();
 }
 
 int     main(int argc, char **argv)

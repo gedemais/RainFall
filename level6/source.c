@@ -3,19 +3,21 @@
 
 int		n(void)
 {
-	return (system("/bin/cat /home/user/level7/.pass"));
+	system("/bin/cat /home/user/level7/.pass");
+	return;
 }
 
-int		m(void)
+void	m(void)
 {
-	return (puts("Nope"));
+	puts("Nope");
+	return;
 }
 
 int     main(int argc, char**argv)
 {
 	char	*a;
 	char	*b;
-	int		(*func)(void) = NULL;
+	void	(*func)(void) = NULL;
 
 	a = malloc(64);
 	b = malloc(4);

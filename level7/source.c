@@ -1,30 +1,29 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
-char    c[68];
 
-int     m()
+char    c[80];
+
+void    m(void)
 {
-    return (printf("%s - %d", c, time(0)));
+    printf("%s - %d", c, time(0));
+    return;
 }
 
 int     main(int argc, char**argv)
 {
     char    *ptr;
     char    *ptr2;
-    char    *ptr3;
-    char    *ptr4;
 
     ptr = malloc(8);
     *ptr = 1;
+    *(ptr + 4) = malloc(8);
     ptr2 = malloc(8);
-    *(ptr + 4) = ptr2;
-    ptr3 = malloc(8);
-    *ptr3 = 2;
-    ptr4 = malloc(8);
-    *(ptr3 + 4) = ptr4;
-    strcpy(*ptr2, argv[1]);
-    strcpy(*ptr4, argv[2]);
+    *ptr2= 2;
+    *(ptr2 + 4) = malloc(8);
+    strcpy(*(ptr + 4), argv[1]);
+    strcpy(*(ptr2 + 4), argv[2]);
     fgets(c, 68, fopen(c, "r/home/user/level8/.pass"));
     puts("~~");
     return (0);
