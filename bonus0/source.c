@@ -1,31 +1,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-char    *p(char *ptr, const char *ptr2)
+void    p(char *ptr, const char *ptr2)
 {
     char    buffer[4096];
+    char    *str;
 
     puts(ptr2);
     read(0, buffer, 4096);
-    buffer[strchr(buffer, '\n')] = '\0';
-    
-    return (strncpy(ptr, buffer, 20));
+    str = strchr(buffer, 10);
+    *str = '\0';
+    strncpy(ptr, buffer, 20);
+
+    return;
 }
 
-char    *pp(char *buf)
+void    pp(char *buf)
 {
     char    str[20];
     char    str2[20];
 
-    p(str, '-');
-    p(str2, '-');
+    p(str, " - ");
+    p(str2, " - ");
     strcpy(buf, str);
-    buf[strlen(buf)] = ' ';
+    buf[strlen(buf)] = 32;
+    strcat(buf, str2);
 
-    return (strcat(buf, str2));
+    return;
 }
 
-int     main(int argc, char**argv)
+int     main(void)
 {
     char    buf[54];
 

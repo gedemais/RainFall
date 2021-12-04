@@ -14,6 +14,7 @@ int     main(int argc, char**argv)
         if (strncmp(g_auth, str, 5) == 0)
         {
             g_auth = malloc(4);
+            g_auth[0] = 0;
         }
     }
     return (0);

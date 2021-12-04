@@ -4,22 +4,21 @@
 int     main(int argc, char**argv)
 {
     int     fd;
-    int     nb;
-    char    buffer[156];
+    char    buff[66];
+    char    buff2[65];
 
     fd = fopen("/home/usr/end/.pass", "r");
-    memset(buffer, 0, 33);
-    if (fd == 0 || argc < 2)
+    memset(buff, 0, 33);
+    if (fd == 0 || argc != 2)
         return (-1);
-    fread(buffer, 1, 66, fd);
-    buffer[64] = '\0';
-    nb = atoi(argv[1]);
-    buffer[nb] = '\0';
-    fread(&buffer + 66, 1, 65, fd);
+    fread(buff, 1, 66, fd);
+    buff[66] = '\0';
+    buff[atoi(argv[1])] = '\0';
+    fread(buff2, 1, 65, fd);
     fclose(fd);
-    if (strcmp(buffer, argv[1]) == 0)
+    if (strcmp(buff2, argv[1]) == 0)
         execl("/bin/sh", "sh", 0);
-    puts(buffer + 66);
+    puts(buff2);
 
     return (0);
 }
