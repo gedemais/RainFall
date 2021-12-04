@@ -102,7 +102,7 @@ Dump of assembler code for function main:
    0x080485e2 <+126>:	jne    0x8048642 <main+222>
    0x080485e4 <+128>:	movl   $0x4,(%esp)										mov 4 (0x4) on the stack
    0x080485eb <+135>:	call   0x8048470 <malloc@plt>
-   0x080485f0 <+140>:	mov    %eax,0x8049aac									mov malloc return value in the address that previously contained "auth "
+   0x080485f0 <+140>:	mov    %eax,0x8049aac									mov malloc return value in auth
    0x080485f5 <+145>:	mov    0x8049aac,%eax									mov this malloc'ed address in eax
    0x080485fa <+150>:	movl   $0x0,(%eax)										mov (int)0 in the malloc'ed zone
    0x08048600 <+156>:	lea    0x20(%esp),%eax									loads buffer memory address in eax
@@ -113,7 +113,7 @@ Dump of assembler code for function main:
    0x08048616 <+178>:	mov    0x1c(%esp),%ecx									mov unsigned int max (0xffffffff) in ecx
    0x0804861a <+182>:	mov    %edx,%edi										mov buffer address + 5 in edi
    0x0804861c <+184>:	repnz scas %es:(%edi),%al								iterates in buffer until a \0, while decrementing ecx for each byte.
-   0x0804861e <+186>:	mov    %ecx,%eax										mov ecx (0xffffffff - length of (buffer + 5) string)
+   0x0804861e <+186>:	mov    %ecx,%eax										mov ecx (0xffffffff - length of (buffer + 5) string) in eax
    0x08048620 <+188>:	not    %eax												inverses every bit value in eax
    0x08048622 <+190>:	sub    $0x1,%eax										substract 1 ($0x1) to eax
    0x08048625 <+193>:	cmp    $0x1e,%eax										if eax > 30 ($0x1e)
