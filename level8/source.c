@@ -17,9 +17,8 @@ int     main(int argc, char**argv)
 			if (strncmp("auth ", str, 5) == 0)
 			{
 				auth = malloc(4);
-				*((int*)auth) = 0;
-				unsigned int n = 0xffffffff - strlen(str + 5);
-				if (~n - 1 <= 30)
+				auth[0] = 0;
+				if (strlen(str + 5) <= 30)
 					strcpy(auth, str + 5);
 			}
 			if (strncmp("reset", str, 5) == 0)
@@ -34,8 +33,9 @@ int     main(int argc, char**argv)
 			{
 				if (auth[32] != 0)
 					system("/bin/sh");
+				else
+					fwrite("Password:\n", 1, 10, stdout);
 			}
-			fwrite("Password:", 10, 1, stdout);
 		}
 	}
 
