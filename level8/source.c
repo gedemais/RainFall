@@ -17,18 +17,14 @@ int     main(int argc, char**argv)
 			if (strncmp("auth ", str, 5) == 0)
 			{
 				auth = malloc(4);
-				auth[0] = 0;
+				*(int*)auth = 0;
 				if (strlen(str + 5) <= 30)
 					strcpy(auth, str + 5);
 			}
 			if (strncmp("reset", str, 5) == 0)
-			{
 				free(auth);
-			}
 			if (strncmp("service", str, 6) == 0)
-			{
 				service = strdup(str + 7);
-			}
 			if (strncmp("login", str, 5) == 0)
 			{
 				if (auth[32] != 0)
@@ -38,6 +34,5 @@ int     main(int argc, char**argv)
 			}
 		}
 	}
-
     return (0);
 }

