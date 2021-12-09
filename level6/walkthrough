@@ -117,25 +117,14 @@ Breakpoint 2, 0x080484a1 in main ()
 (gdb) print $eax
 $2 = 134520912
 
-!!!Rewrite the part on argv1 offset \\ \\ because it seems that the offset is to get from
-argv[0] on argv[1] and eax, (eax) is just to get what is inside argv1.
-
 ********************************************************************************
 Good news, the second buffer (4 bytes) is located 4 bytes after the end of the
 first one (64 bytes). So now we can give a parameter that will overflow the dest
 (64 bytes) buffer in strcpy, to write the address of n into the second buffer.
 
-There's one more thing to take in account though :
-   0x080484b3 <+55>:	add    $0x4,%eax
-
-\\
-The address of argv[1] is added with 4. This has the effect to offset src string
-of 4 bytes after argv[1]. Meaning that we will have to write four padding chars
-into our command-line parameter before to actually "write" into the first buffer.
 Let's create our payload.
 
-argv[1] offset (4) + First buffer len (64) + malloc offset(4) == 72 padding bytes
-\\
+First buffer len (64) + malloc offset(8) + malloc (4) == 72 padding bytes
 
 So now we just have to launch level6 with as parameter a string containing 72
 random bytes, followed by the address of the n function.
